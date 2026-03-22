@@ -1,0 +1,131 @@
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Inter:wght@300;400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Blue background: oklch ~50% chroma 0.18 hue 260 (medium blue) */
+    --background: 50 0.18 260;
+    --foreground: 0 0 0;
+    --card: 55 0.16 260;
+    --card-foreground: 0 0 0;
+    --popover: 55 0.16 260;
+    --popover-foreground: 0 0 0;
+    --primary: 17.5 0 0;
+    --primary-foreground: 98 0 0;
+    --secondary: 58 0.14 260;
+    --secondary-foreground: 0 0 0;
+    --muted: 60 0.12 260;
+    --muted-foreground: 0 0 0;
+    --accent: 62 0.12 260;
+    --accent-foreground: 0 0 0;
+    --destructive: 55 0.22 22;
+    --destructive-foreground: 98 0 0;
+    --border: 55 0.14 260;
+    --input: 55 0.14 260;
+    --ring: 17.5 0 0;
+    --radius: 0.375rem;
+
+    /* Platform brand colors */
+    --myntra: 60 0.22 5;
+    --amazon: 70 0.18 55;
+    --flipkart: 55 0.22 260;
+    --ajio: 30 0.18 310;
+    --meesho: 50 0.25 295;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background font-sans;
+    color: #000000;
+  }
+  /* Force all text to black globally */
+  *,
+  *::before,
+  *::after {
+    color: inherit;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  span,
+  a,
+  li,
+  label,
+  button,
+  input,
+  select,
+  textarea,
+  td,
+  th,
+  dt,
+  dd,
+  figcaption,
+  div,
+  section,
+  article,
+  aside,
+  header,
+  footer,
+  nav,
+  main {
+    color: #000000;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: "Playfair Display", Georgia, serif;
+  }
+  .font-sans {
+    font-family: "Inter", system-ui, sans-serif;
+  }
+  .platform-myntra {
+    background-color: oklch(60% 0.22 5);
+  }
+  .platform-amazon {
+    background-color: oklch(70% 0.18 55);
+  }
+  .platform-flipkart {
+    background-color: oklch(55% 0.22 260);
+  }
+  .platform-ajio {
+    background-color: oklch(30% 0.18 310);
+  }
+  .platform-meesho {
+    background-color: oklch(50% 0.25 295);
+  }
+
+  .text-myntra {
+    color: oklch(60% 0.22 5) !important;
+  }
+  .text-amazon {
+    color: oklch(70% 0.18 55) !important;
+  }
+  .text-flipkart {
+    color: oklch(55% 0.22 260) !important;
+  }
+  .text-ajio {
+    color: oklch(30% 0.18 310) !important;
+  }
+  .text-meesho {
+    color: oklch(50% 0.25 295) !important;
+  }
+
+  .border-myntra {
+    border-color: oklch(60% 0.22 5);
+  }
+  .border-flipkart {
+    border-color: oklch(55% 0.22 260);
+  }
+}
