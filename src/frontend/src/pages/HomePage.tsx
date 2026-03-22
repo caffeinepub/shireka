@@ -52,6 +52,57 @@ const INFANT_AGE_RANGES = [
   "18-24 Months",
 ];
 
+const TWINNING_GALLERY = [
+  {
+    id: "family4",
+    image: "/assets/generated/family4-pink.dim_800x600.jpg",
+    title: "Family of Four",
+    subtitle: "Pink Ethnic Ensemble",
+    badge: "Family · 4",
+    badgeBg: "bg-pink-500",
+    badgeText: "text-white",
+    overlayGradient: "from-pink-900/80",
+    borderAccent: "border-pink-300",
+    featured: true,
+  },
+  {
+    id: "family3",
+    image: "/assets/generated/family3-green.dim_800x600.jpg",
+    title: "Family of Three",
+    subtitle: "Green Traditional Attire",
+    badge: "Family · 3",
+    badgeBg: "bg-green-600",
+    badgeText: "text-white",
+    overlayGradient: "from-green-900/80",
+    borderAccent: "border-green-300",
+    featured: false,
+  },
+  {
+    id: "brothers",
+    image: "/assets/generated/brothers2-navyblue.dim_800x600.jpg",
+    title: "Brothers Duo",
+    subtitle: "Navy Blue Kurtas",
+    badge: "Brothers · 2",
+    badgeBg: "bg-navy",
+    badgeText: "text-white",
+    overlayGradient: "from-blue-950/80",
+    borderAccent: "border-blue-300",
+    featured: false,
+  },
+  {
+    id: "couple",
+    image: "/assets/generated/couple-white.dim_800x600.jpg",
+    title: "Couple Goals",
+    subtitle: "White Festive Wear",
+    badge: "Couple",
+    badgeBg: "bg-amber-100",
+    badgeText: "text-amber-900",
+    overlayGradient: "from-gray-900/80",
+    borderAccent: "border-amber-200",
+    featured: true,
+  },
+];
+
 interface KidsCardProps {
   title: string;
   subtitle: string;
@@ -345,6 +396,199 @@ export default function HomePage({ navigate }: HomePageProps) {
               }`}
             />
           ))}
+        </div>
+      </section>
+
+      {/* Indian Traditional Twinning Gallery */}
+      <section
+        className="py-20 relative overflow-hidden"
+        data-ocid="gallery.section"
+        style={{
+          background:
+            "linear-gradient(135deg, #1a0a2e 0%, #16213e 40%, #0f3460 70%, #1a1a2e 100%)",
+        }}
+      >
+        {/* Decorative background elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div
+            className="absolute -top-20 -right-20 w-96 h-96 rounded-full opacity-10"
+            style={{
+              background: "radial-gradient(circle, #ff6eb4, transparent)",
+            }}
+          />
+          <div
+            className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full opacity-10"
+            style={{
+              background: "radial-gradient(circle, #4ade80, transparent)",
+            }}
+          />
+          <div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-5"
+            style={{
+              background: "radial-gradient(circle, #e2c08d, transparent)",
+            }}
+          />
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
+          {/* Section Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-12"
+          >
+            <p
+              className="text-xs tracking-[0.4em] uppercase mb-3"
+              style={{ color: "#e2c08d" }}
+            >
+              ✦ Ethnic Collections ✦
+            </p>
+            <h2
+              className="text-4xl md:text-5xl font-bold text-white mb-3"
+              style={{ fontFamily: "Georgia, serif", letterSpacing: "0.05em" }}
+            >
+              Indian Traditional Twinning
+            </h2>
+            <p className="text-white/60 text-base md:text-lg tracking-wide">
+              Coordinated Ethnic Wear for Every Occasion
+            </p>
+            <div className="flex justify-center mt-5 gap-2">
+              <div
+                className="h-px w-16 bg-gradient-to-r from-transparent"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(to right, transparent, #e2c08d)",
+                }}
+              />
+              <div
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: "#e2c08d" }}
+              />
+              <div
+                className="h-px w-16"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(to left, transparent, #e2c08d)",
+                }}
+              />
+            </div>
+          </motion.div>
+
+          {/* Gallery Grid — featured asymmetric layout */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-5">
+            {TWINNING_GALLERY.map((item, idx) => {
+              // Featured items get more columns on large screens
+              const colSpan = item.featured ? "lg:col-span-7" : "lg:col-span-5";
+              const imgHeight = item.featured ? "h-[380px]" : "h-[340px]";
+
+              return (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: idx * 0.12 }}
+                  className={`group relative rounded-2xl overflow-hidden cursor-pointer shadow-2xl ${colSpan}`}
+                  onClick={() => navigate("find")}
+                  data-ocid={`gallery.${item.id}.card`}
+                >
+                  {/* Image */}
+                  <div className={`relative ${imgHeight} overflow-hidden`}>
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-110"
+                    />
+
+                    {/* Base gradient overlay */}
+                    <div
+                      className={`absolute inset-0 bg-gradient-to-t ${item.overlayGradient} via-transparent to-transparent opacity-70`}
+                    />
+
+                    {/* Hover overlay with shimmer */}
+                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                    {/* Golden border glow on hover */}
+                    <div
+                      className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-amber-300/60 transition-all duration-500"
+                      style={{
+                        boxShadow: "inset 0 0 0 0",
+                        transition: "box-shadow 0.5s",
+                      }}
+                    />
+
+                    {/* Badge top-left */}
+                    <div className="absolute top-4 left-4">
+                      <span
+                        className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold tracking-wider shadow-lg ${item.badgeBg} ${item.badgeText}`}
+                        style={
+                          item.id === "brothers"
+                            ? { backgroundColor: "#1e3a5f" }
+                            : {}
+                        }
+                      >
+                        ✦ {item.badge}
+                      </span>
+                    </div>
+
+                    {/* Text content bottom */}
+                    <div className="absolute bottom-0 left-0 right-0 p-5">
+                      <h3
+                        className="text-white font-bold text-xl md:text-2xl leading-tight"
+                        style={{ textShadow: "0 2px 8px rgba(0,0,0,0.8)" }}
+                      >
+                        {item.title}
+                      </h3>
+                      <p className="text-white/75 text-sm mt-0.5 tracking-wide">
+                        {item.subtitle}
+                      </p>
+
+                      {/* Shop Now — visible on hover */}
+                      <div className="overflow-hidden mt-3">
+                        <motion.div
+                          initial={{ y: 30, opacity: 0 }}
+                          whileHover={{ y: 0, opacity: 1 }}
+                          className="opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-400"
+                        >
+                          <button
+                            type="button"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold tracking-widest uppercase text-white border border-white/60 hover:bg-white hover:text-black transition-colors duration-300"
+                            data-ocid={`gallery.${item.id}.primary_button`}
+                          >
+                            SHOP NOW <ChevronRight className="w-3.5 h-3.5" />
+                          </button>
+                        </motion.div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {/* Bottom CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            className="text-center mt-12"
+          >
+            <Button
+              size="lg"
+              className="font-bold tracking-widest px-10 py-5 text-sm rounded-full shadow-xl"
+              style={{
+                background: "linear-gradient(135deg, #e2c08d, #c9a55e)",
+                color: "#1a0a2e",
+              }}
+              onClick={() => navigate("find")}
+              data-ocid="gallery.view_all.button"
+            >
+              EXPLORE ALL ETHNIC COLLECTIONS ✦
+            </Button>
+          </motion.div>
         </div>
       </section>
 

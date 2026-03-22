@@ -10,13 +10,15 @@ import {
 } from "@/components/ui/table";
 import {
   ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
   ExternalLink,
   Heart,
   Share2,
   TrendingDown,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import type { MemberConfig, OutfitFinderState, Page } from "../App";
 
@@ -25,13 +27,13 @@ interface ResultsPageProps {
   finderState: OutfitFinderState;
 }
 
-// ─────────────── PLATFORM CONFIG ───────────────
+// ─────────────── PLATFORM CONFIG (order: Ajio, Amazon, Flipkart, Meesho, Myntra) ───────────────
 const PLATFORMS = [
-  { id: "Myntra", label: "Myntra", color: "#FF3F6C", bg: "#fff0f4" },
+  { id: "Ajio", label: "Ajio", color: "#5A0064", bg: "#f8f0fa" },
   { id: "Amazon", label: "Amazon", color: "#FF9900", bg: "#fff8ec" },
   { id: "Flipkart", label: "Flipkart", color: "#2874F0", bg: "#eef4ff" },
-  { id: "Ajio", label: "Ajio", color: "#5A0064", bg: "#f8f0fa" },
   { id: "Meesho", label: "Meesho", color: "#9B1FE8", bg: "#f5eeff" },
+  { id: "Myntra", label: "Myntra", color: "#FF3F6C", bg: "#fff0f4" },
 ];
 
 const COLOR_HEX: Record<string, string> = {
@@ -79,6 +81,17 @@ const COLOR_HEX: Record<string, string> = {
   Bronze: "#CD7F32",
 };
 
+// ─────────────── OUTFIT VARIANT STYLES ───────────────
+const OUTFIT_STYLES = [
+  "Regular Fit",
+  "Slim Fit",
+  "Embroidered",
+  "Printed",
+  "Plain",
+  "Designer",
+  "Festive",
+];
+
 // ─────────────── PRICE GENERATION ───────────────
 const BASE_PRICES: Record<string, number> = {
   "Kurtas & Kurta Sets": 800,
@@ -123,59 +136,122 @@ const BASE_PRICES: Record<string, number> = {
   "Tops & Shorts": 500,
 };
 
-// Platform price multipliers
 const PLATFORM_MULTIPLIERS: Record<string, number> = {
-  Myntra: 1.0,
+  Ajio: 1.12,
   Amazon: 0.92,
   Flipkart: 0.95,
-  Ajio: 1.12,
   Meesho: 0.78,
+  Myntra: 1.0,
 };
 
 const PLATFORM_RATINGS: Record<string, number> = {
-  Myntra: 4.3,
+  Ajio: 4.2,
   Amazon: 4.1,
   Flipkart: 4.0,
-  Ajio: 4.2,
   Meesho: 3.9,
+  Myntra: 4.3,
 };
 
-function generateMockProducts(
-  member: MemberConfig,
-  outfitType: string,
+// ─────────────── HASH UTILITY ───────────────
+function simpleHash(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++)
+    h = (h * 31 + s.charCodeAt(i)) & 0xffffffff;
+  return Math.abs(h);
+}
+
+// ─────────────── VARIANT PLATFORM AVAILABILITY ───────────────
+function getVariantPlatforms(
+  garment: string,
   color: string,
-  size: string,
-) {
-  const base = BASE_PRICES[outfitType] ?? 800;
-  return PLATFORMS.map((p, i) => {
-    const price = Math.round(
-      base * PLATFORM_MULTIPLIERS[p.id] * (0.95 + i * 0.03),
+  variantIndex: number,
+): string[] {
+  const hash = simpleHash(garment + color + String(variantIndex));
+  const count = (hash % 3) + 2; // 2..4 platforms
+  const order = PLATFORMS.map((p, i) => ({
+    id: p.id,
+    sort: simpleHash(p.id + garment + color + String(variantIndex) + i),
+  }))
+    .sort((a, b) => a.sort - b.sort)
+    .map((x) => x.id);
+  return order.slice(0, count);
+}
+
+// ─────────────── OUTFIT VARIANT TYPE ───────────────
+interface OutfitVariant {
+  variantIndex: number;
+  styleName: string;
+  fullName: string;
+  color: string;
+  platforms: Array<{
+    id: string;
+    label: string;
+    color: string;
+    bg: string;
+    price: number;
+    rating: number;
+    buyUrl: string;
+  }>;
+  lowestPrice: number;
+  cheapestPlatform: string;
+}
+
+function generateOutfitVariants(member: MemberConfig): OutfitVariant[] {
+  const base = BASE_PRICES[member.garment] ?? 800;
+  const color = member.color;
+  const outfitType = member.garment;
+
+  return OUTFIT_STYLES.map((style, idx) => {
+    const fullName = `${style} ${color} ${outfitType}`;
+    const availablePlatformIds = getVariantPlatforms(outfitType, color, idx);
+    const availablePlatforms = PLATFORMS.filter((p) =>
+      availablePlatformIds.includes(p.id),
     );
+
+    // Slightly vary base price per variant
+    const variantBase = base * (0.9 + idx * 0.05);
     const searchQuery = encodeURIComponent(
-      `${color} ${outfitType} ${member.label} ${size}`,
+      `${color} ${outfitType} ${member.label} ${member.size}`,
     );
     const outfitSlug = outfitType.toLowerCase().replace(/[^a-z0-9]+/g, "-");
     const colorSlug = color.toLowerCase().replace(/ /g, "+");
 
-    const buyUrl = (() => {
-      if (p.id === "Myntra")
-        return `https://www.myntra.com/${outfitSlug}?q=${colorSlug}+${outfitSlug}+${member.label.toLowerCase()}`;
-      if (p.id === "Amazon") return `https://www.amazon.in/s?k=${searchQuery}`;
-      if (p.id === "Flipkart")
-        return `https://www.flipkart.com/search?q=${searchQuery}`;
-      if (p.id === "Ajio")
-        return `https://www.ajio.com/search/?text=${colorSlug}+${outfitSlug}`;
-      return `https://meesho.com/search?q=${searchQuery}`;
-    })();
+    const platforms = availablePlatforms.map((p) => {
+      const price = Math.round(variantBase * PLATFORM_MULTIPLIERS[p.id]);
+      const buyUrl = (() => {
+        if (p.id === "Myntra")
+          return `https://www.myntra.com/${outfitSlug}?q=${colorSlug}+${outfitSlug}`;
+        if (p.id === "Amazon")
+          return `https://www.amazon.in/s?k=${searchQuery}`;
+        if (p.id === "Flipkart")
+          return `https://www.flipkart.com/search?q=${searchQuery}`;
+        if (p.id === "Ajio")
+          return `https://www.ajio.com/search/?text=${colorSlug}+${outfitSlug}`;
+        return `https://meesho.com/search?q=${searchQuery}`;
+      })();
+      return {
+        id: p.id,
+        label: p.label,
+        color: p.color,
+        bg: p.bg,
+        price,
+        rating: PLATFORM_RATINGS[p.id],
+        buyUrl,
+      };
+    });
+
+    const lowestPrice = Math.min(...platforms.map((p) => p.price));
+    const cheapestPlatform =
+      platforms.find((p) => p.price === lowestPrice)?.id ?? "";
 
     return {
-      platform: p.id,
-      name: `${color} ${outfitType} — ${member.label} (${size})`,
-      price,
-      rating: PLATFORM_RATINGS[p.id],
-      buyUrl,
-      platformColor: p.color,
-      platformBg: p.bg,
+      variantIndex: idx,
+      styleName: style,
+      fullName,
+      color,
+      platforms,
+      lowestPrice,
+      cheapestPlatform,
     };
   });
 }
@@ -190,27 +266,35 @@ const MEMBER_EMOJIS: Record<string, string> = {
   infant_girl: "👶",
 };
 
-// ─────────────── PRODUCT CARD ───────────────
-function ProductCard({
-  product,
-  color,
-  isLowest,
+// ─────────────── OUTFIT VARIANT CARD ───────────────
+function OutfitVariantCard({
+  variant,
+  isSelected,
+  onSelect,
 }: {
-  product: ReturnType<typeof generateMockProducts>[0];
-  color: string;
-  isLowest: boolean;
+  variant: OutfitVariant;
+  isSelected: boolean;
+  onSelect: () => void;
 }) {
-  const colorHex = COLOR_HEX[color] ?? "#cccccc";
-  const isMulti = color === "Multi";
+  const colorHex = COLOR_HEX[variant.color] ?? "#cccccc";
+  const isMulti = variant.color === "Multi";
+  const cheapPlat = variant.platforms.find(
+    (p) => p.id === variant.cheapestPlatform,
+  );
 
   return (
-    <div
-      className={`rounded-xl overflow-hidden border-2 transition-all hover:shadow-lg flex flex-col ${
-        isLowest ? "border-green-500 shadow-green-100" : "border-gray-200"
+    <button
+      type="button"
+      onClick={onSelect}
+      className={`rounded-xl overflow-hidden border-2 transition-all flex flex-col text-left flex-shrink-0 ${
+        isSelected
+          ? "border-blue-500 shadow-lg shadow-blue-200 ring-2 ring-blue-300"
+          : "border-gray-200 hover:border-blue-300 hover:shadow-md"
       }`}
-      style={{ minWidth: 160 }}
+      style={{ width: 160 }}
+      data-ocid="outfit_variant.card"
     >
-      {/* Color swatch image */}
+      {/* Color swatch */}
       <div
         className="h-28 w-full relative flex items-center justify-center"
         style={{
@@ -228,58 +312,83 @@ function ProductCard({
               : colorHex,
           }}
         />
-        {isLowest && (
-          <span className="absolute top-2 right-2 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-            BEST PRICE
+        {isSelected && (
+          <span className="absolute top-2 left-2 bg-blue-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full">
+            SELECTED
           </span>
         )}
+        <span className="absolute top-2 right-2 bg-white/90 text-gray-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow">
+          {variant.styleName}
+        </span>
       </div>
 
       {/* Card body */}
-      <div className="p-3 flex flex-col gap-2 flex-1">
-        <span
-          className="text-[11px] font-bold px-2 py-0.5 rounded-full w-fit"
-          style={{
-            background: product.platformBg,
-            color: product.platformColor,
-          }}
-        >
-          {product.platform}
-        </span>
-        <p className="text-xs text-gray-700 font-medium leading-tight line-clamp-2">
-          {product.name}
+      <div className="p-3 flex flex-col gap-1.5 flex-1 bg-white">
+        <p className="text-[11px] font-semibold text-gray-800 leading-tight line-clamp-2">
+          {variant.fullName}
         </p>
-        <p className="text-lg font-extrabold text-black">
-          ₹{product.price.toLocaleString("en-IN")}
+        <p className="text-base font-extrabold text-black">
+          ₹{variant.lowestPrice.toLocaleString("en-IN")}
         </p>
-        <p className="text-xs text-yellow-600 font-semibold">
-          ★ {product.rating}
+        <p className="text-[10px] text-gray-500">
+          Best on{" "}
+          <span className="font-bold" style={{ color: cheapPlat?.color }}>
+            {variant.cheapestPlatform}
+          </span>
         </p>
-        <a
-          href={product.buyUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-auto flex items-center justify-center gap-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition-colors"
-          data-ocid="product.buy_button"
-        >
-          Buy Now <ExternalLink className="w-3 h-3" />
-        </a>
+        {/* Platform availability badges */}
+        <div className="flex flex-wrap gap-1 mt-auto">
+          {variant.platforms.map((p) => (
+            <span
+              key={p.id}
+              className="text-[8px] font-bold px-1.5 py-0.5 rounded-full"
+              style={{ background: p.bg, color: p.color }}
+            >
+              {p.id}
+            </span>
+          ))}
+        </div>
+        {cheapPlat && (
+          <a
+            href={cheapPlat.buyUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="mt-1 flex items-center justify-center gap-1 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold px-2 py-1.5 rounded-lg transition-colors"
+            data-ocid="outfit_variant.buy_button"
+          >
+            Buy Now <ExternalLink className="w-2.5 h-2.5" />
+          </a>
+        )}
       </div>
-    </div>
+    </button>
   );
 }
 
 // ─────────────── MEMBER RESULT SECTION ───────────────
 function MemberSection({ member }: { member: MemberConfig }) {
-  const products = generateMockProducts(
-    member,
-    member.garment,
-    member.color,
-    member.size,
-  );
-  const lowestPrice = Math.min(...products.map((p) => p.price));
-
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const variants = generateOutfitVariants(member);
+  const [selectedVariantIdx, setSelectedVariantIdx] = useState(0);
+  const selectedVariant = variants[selectedVariantIdx];
   const emoji = MEMBER_EMOJIS[member.id] ?? "🧑";
+
+  const scroll = (dir: "left" | "right") => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({
+        left: dir === "left" ? -200 : 200,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  // Price comparison rows for selected variant, in platform order
+  const comparisonRows = PLATFORMS.map((p) => {
+    const found = selectedVariant.platforms.find((sp) => sp.id === p.id);
+    return found ? { ...found } : null;
+  }).filter(Boolean) as OutfitVariant["platforms"];
+
+  const lowestCompPrice = Math.min(...comparisonRows.map((r) => r.price));
 
   return (
     <motion.section
@@ -295,26 +404,63 @@ function MemberSection({ member }: { member: MemberConfig }) {
           {emoji} For {member.label} — {member.garment} ({member.size})
         </h2>
         <p className="text-blue-100 text-sm">
-          Color: {member.color} &bull; Prices across 5 platforms
+          {variants.length} outfit options in {member.color}
         </p>
       </div>
 
-      {/* Product cards horizontal scroll */}
-      <div className="p-4 overflow-x-auto">
-        <div className="flex gap-3" style={{ minWidth: "max-content" }}>
-          {products.map((prod) => (
-            <ProductCard
-              key={prod.platform}
-              product={prod}
-              color={member.color}
-              isLowest={prod.price === lowestPrice}
+      {/* Horizontal outfit scroll with arrows */}
+      <div className="relative px-2 pt-4 pb-2">
+        {/* Left arrow */}
+        <button
+          type="button"
+          onClick={() => scroll("left")}
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors"
+          data-ocid="outfit_scroll.pagination_prev"
+          aria-label="Scroll left"
+        >
+          <ChevronLeft className="w-5 h-5 text-gray-700" />
+        </button>
+
+        {/* Scrollable outfit row */}
+        <div
+          ref={scrollRef}
+          className="flex gap-3 overflow-x-auto px-8 py-2"
+          style={{ scrollbarWidth: "none" }}
+        >
+          {variants.map((variant, idx) => (
+            <OutfitVariantCard
+              key={variant.variantIndex}
+              variant={variant}
+              isSelected={selectedVariantIdx === idx}
+              onSelect={() => setSelectedVariantIdx(idx)}
             />
           ))}
         </div>
+
+        {/* Right arrow */}
+        <button
+          type="button"
+          onClick={() => scroll("right")}
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors"
+          data-ocid="outfit_scroll.pagination_next"
+          aria-label="Scroll right"
+        >
+          <ChevronRight className="w-5 h-5 text-gray-700" />
+        </button>
+      </div>
+
+      {/* Selected variant label */}
+      <div className="px-5 pb-1">
+        <p className="text-xs text-gray-500">
+          Showing prices for:{" "}
+          <span className="font-bold text-blue-600">
+            {selectedVariant.fullName}
+          </span>
+        </p>
       </div>
 
       {/* Price comparison table */}
-      <div className="px-4 pb-5" data-ocid="price_comparison.table">
+      <div className="px-4 pb-5 pt-2" data-ocid="price_comparison.table">
         <div className="flex items-center gap-2 mb-2">
           <TrendingDown className="w-4 h-4 text-green-600" />
           <span className="font-bold text-sm text-black">Price Comparison</span>
@@ -324,66 +470,60 @@ function MemberSection({ member }: { member: MemberConfig }) {
             <TableHeader>
               <TableRow>
                 <TableHead>Platform</TableHead>
-                <TableHead>Product</TableHead>
+                <TableHead>Outfit</TableHead>
                 <TableHead>Price</TableHead>
                 <TableHead>Rating</TableHead>
                 <TableHead>Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {products
-                .slice()
-                .sort((a, b) => a.price - b.price)
-                .map((prod) => (
-                  <TableRow
-                    key={prod.platform}
-                    className={prod.price === lowestPrice ? "bg-green-50" : ""}
-                    data-ocid="price_comparison.row"
-                  >
-                    <TableCell>
-                      <span
-                        className="text-xs font-bold px-2 py-0.5 rounded-full"
-                        style={{
-                          background: prod.platformBg,
-                          color: prod.platformColor,
-                        }}
-                      >
-                        {prod.platform}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-xs max-w-[180px] truncate">
-                      {prod.name}
-                    </TableCell>
-                    <TableCell
-                      className={`font-extrabold ${
-                        prod.price === lowestPrice
-                          ? "text-green-600"
-                          : "text-black"
-                      }`}
+              {comparisonRows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  className={row.price === lowestCompPrice ? "bg-green-50" : ""}
+                  data-ocid="price_comparison.row"
+                >
+                  <TableCell>
+                    <span
+                      className="text-xs font-bold px-2 py-0.5 rounded-full"
+                      style={{ background: row.bg, color: row.color }}
                     >
-                      ₹{prod.price.toLocaleString("en-IN")}
-                      {prod.price === lowestPrice && (
-                        <span className="ml-1 text-[10px] bg-green-100 text-green-700 rounded px-1">
-                          LOWEST
-                        </span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-yellow-600 font-semibold">
-                      ★ {prod.rating}
-                    </TableCell>
-                    <TableCell>
-                      <a
-                        href={prod.buyUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline text-xs font-bold flex items-center gap-1"
-                        data-ocid="price_table.buy_button"
-                      >
-                        Buy <ExternalLink className="w-3 h-3" />
-                      </a>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      {row.label}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-xs max-w-[160px] truncate">
+                    {selectedVariant.fullName}
+                  </TableCell>
+                  <TableCell
+                    className={`font-extrabold ${
+                      row.price === lowestCompPrice
+                        ? "text-green-600"
+                        : "text-black"
+                    }`}
+                  >
+                    ₹{row.price.toLocaleString("en-IN")}
+                    {row.price === lowestCompPrice && (
+                      <span className="ml-1 text-[10px] bg-green-100 text-green-700 rounded px-1">
+                        LOWEST
+                      </span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-yellow-600 font-semibold">
+                    ★ {row.rating}
+                  </TableCell>
+                  <TableCell>
+                    <a
+                      href={row.buyUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline text-xs font-bold flex items-center gap-1"
+                      data-ocid="price_table.buy_button"
+                    >
+                      Buy <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </div>
@@ -458,8 +598,8 @@ export default function ResultsPage({
             {color && <span className="ml-2">— {color}</span>}
           </h1>
           <p className="text-black/80 mt-1">
-            {members.length} member{members.length > 1 ? "s" : ""} &bull; Prices
-            from 5 platforms
+            {members.length} member{members.length > 1 ? "s" : ""} &bull; Scroll
+            left &amp; right to explore outfit styles
           </p>
         </motion.div>
 
