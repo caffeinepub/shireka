@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 import {
   Table,
   TableBody,
@@ -13,11 +14,14 @@ import {
   ChevronLeft,
   ChevronRight,
   ExternalLink,
+  Filter,
   Heart,
   Share2,
+  SlidersHorizontal,
   TrendingDown,
+  X,
 } from "lucide-react";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import type { MemberConfig, OutfitFinderState, Page } from "../App";
@@ -81,8 +85,170 @@ const COLOR_HEX: Record<string, string> = {
   Bronze: "#CD7F32",
 };
 
-// ─────────────── OUTFIT VARIANT STYLES ───────────────
+// ─────────────── GARMENT FALLBACK EMOJI ───────────────
+function getGarmentEmoji(garment: string): string {
+  const lower = garment.toLowerCase();
+  if (
+    lower.includes("saree") ||
+    lower.includes("lehenga") ||
+    lower.includes("churidar") ||
+    lower.includes("kurti") ||
+    lower.includes("dress") ||
+    lower.includes("frock") ||
+    lower.includes("top") ||
+    lower.includes("skirt")
+  )
+    return "👗";
+  if (
+    lower.includes("sherwani") ||
+    lower.includes("suit") ||
+    lower.includes("blazer") ||
+    lower.includes("formal shirt")
+  )
+    return "🤵";
+  if (
+    lower.includes("kurta") ||
+    lower.includes("nehru") ||
+    lower.includes("dhoti") ||
+    lower.includes("ethnic")
+  )
+    return "👘";
+  if (lower.includes("shirt") || lower.includes("t-shirt")) return "👔";
+  if (
+    lower.includes("jacket") ||
+    lower.includes("coat") ||
+    lower.includes("sweatshirt")
+  )
+    return "🧥";
+  if (
+    lower.includes("jeans") ||
+    lower.includes("trouser") ||
+    lower.includes("pant")
+  )
+    return "👖";
+  if (lower.includes("onesie") || lower.includes("romper")) return "🍼";
+  return "👕";
+}
+
+// ─────────────── STYLE CATEGORIES ───────────────
+const STYLE_CATEGORIES: Record<string, string[]> = {
+  "Fit Types": [
+    "Regular Fit",
+    "Slim Fit",
+    "Relaxed Fit",
+    "Oversized",
+    "Tailored",
+    "Straight Cut",
+    "A-Line",
+    "Flared",
+    "Asymmetric",
+    "Comfort Fit",
+    "Athletic Fit",
+    "Boxy Fit",
+    "Cropped",
+  ],
+  "Prints & Patterns": [
+    "Printed",
+    "Floral",
+    "Geometric",
+    "Paisley",
+    "Abstract",
+    "Striped",
+    "Checked",
+    "Polka Dot",
+    "Animal Print",
+    "Tie-Dye",
+    "Batik",
+    "Block Print",
+    "Ikat",
+    "Chevron",
+    "Camouflage",
+    "Ombre",
+    "Digital Print",
+    "Kalamkari",
+    "Ajrakh Print",
+    "Dabu Print",
+    "Madhubani",
+  ],
+  Occasion: [
+    "Casual",
+    "Formal",
+    "Semi-Formal",
+    "Party Wear",
+    "Wedding",
+    "Bridal",
+    "Traditional",
+    "Ethnic",
+    "Contemporary",
+    "Fusion",
+    "Boho",
+    "Minimalist",
+    "Luxury",
+    "Premium",
+    "Indo-Western",
+    "Resort Wear",
+    "Cocktail",
+    "Workwear",
+    "Loungewear",
+    "Athleisure",
+    "Festive",
+    "Designer",
+    "Plain",
+    "Embroidered",
+  ],
+  Fabric: [
+    "Linen",
+    "Silk",
+    "Cotton",
+    "Velvet",
+    "Chiffon",
+    "Georgette",
+    "Chanderi",
+    "Khadi",
+    "Organza",
+    "Satin",
+    "Brocade",
+    "Net Fabric",
+    "Rayon",
+    "Modal",
+    "Crepe",
+  ],
+  Embellishments: [
+    "Zari Work",
+    "Mirror Work",
+    "Thread Work",
+    "Sequin",
+    "Beaded",
+    "Lacework",
+    "Resham Work",
+    "Kantha",
+    "Gota Patti",
+    "Cutdana",
+    "Mukesh Work",
+    "Chikankari",
+    "Phulkari",
+    "Bandhani",
+    "Leheriya",
+  ],
+  "Regional Styles": [
+    "Rajasthani",
+    "Lucknowi",
+    "Bengali",
+    "Banarasi",
+    "Kashmiri",
+    "Hyderabadi",
+    "Gujarati",
+    "Maharashtrian",
+    "Punjabi",
+    "Kanjeevaram",
+    "Paithani",
+    "Patola",
+  ],
+};
+
+// ─────────────── OUTFIT VARIANT STYLES (100 options) ───────────────
 const OUTFIT_STYLES = [
+  // Original classics
   "Regular Fit",
   "Slim Fit",
   "Embroidered",
@@ -90,6 +256,105 @@ const OUTFIT_STYLES = [
   "Plain",
   "Designer",
   "Festive",
+  // Fit types
+  "Relaxed Fit",
+  "Oversized",
+  "Tailored",
+  "Straight Cut",
+  "A-Line",
+  "Flared",
+  "Asymmetric",
+  "Comfort Fit",
+  "Athletic Fit",
+  "Boxy Fit",
+  "Cropped",
+  // Prints & patterns
+  "Floral",
+  "Geometric",
+  "Paisley",
+  "Abstract",
+  "Striped",
+  "Checked",
+  "Polka Dot",
+  "Animal Print",
+  "Tie-Dye",
+  "Batik",
+  "Block Print",
+  "Ikat",
+  "Chevron",
+  "Camouflage",
+  "Ombre",
+  "Digital Print",
+  "Kalamkari",
+  "Ajrakh Print",
+  "Dabu Print",
+  "Madhubani",
+  // Occasion & styles
+  "Casual",
+  "Formal",
+  "Semi-Formal",
+  "Party Wear",
+  "Wedding",
+  "Bridal",
+  "Traditional",
+  "Ethnic",
+  "Contemporary",
+  "Fusion",
+  "Boho",
+  "Minimalist",
+  "Luxury",
+  "Premium",
+  "Indo-Western",
+  "Resort Wear",
+  "Cocktail",
+  "Workwear",
+  "Loungewear",
+  "Athleisure",
+  // Fabric & finish
+  "Linen",
+  "Silk",
+  "Cotton",
+  "Velvet",
+  "Chiffon",
+  "Georgette",
+  "Chanderi",
+  "Khadi",
+  "Organza",
+  "Satin",
+  "Brocade",
+  "Net Fabric",
+  "Rayon",
+  "Modal",
+  "Crepe",
+  // Embellishments
+  "Zari Work",
+  "Mirror Work",
+  "Thread Work",
+  "Sequin",
+  "Beaded",
+  "Lacework",
+  "Resham Work",
+  "Kantha",
+  "Gota Patti",
+  "Cutdana",
+  "Mukesh Work",
+  "Chikankari",
+  "Phulkari",
+  "Bandhani",
+  "Leheriya",
+  // Regional styles
+  "Rajasthani",
+  "Lucknowi",
+  "Bengali",
+  "Banarasi",
+  "Kashmiri",
+  "Hyderabadi",
+  "Gujarati",
+  "Maharashtrian",
+  "Punjabi",
+  "Kanjeevaram",
+  "Paithani",
+  "Patola",
 ];
 
 // ─────────────── PRICE GENERATION ───────────────
@@ -167,7 +432,7 @@ function getVariantPlatforms(
   variantIndex: number,
 ): string[] {
   const hash = simpleHash(garment + color + String(variantIndex));
-  const count = (hash % 3) + 2; // 2..4 platforms
+  const count = (hash % 3) + 2;
   const order = PLATFORMS.map((p, i) => ({
     id: p.id,
     sort: simpleHash(p.id + garment + color + String(variantIndex) + i),
@@ -183,6 +448,7 @@ interface OutfitVariant {
   styleName: string;
   fullName: string;
   color: string;
+  garment: string;
   platforms: Array<{
     id: string;
     label: string;
@@ -208,8 +474,7 @@ function generateOutfitVariants(member: MemberConfig): OutfitVariant[] {
       availablePlatformIds.includes(p.id),
     );
 
-    // Slightly vary base price per variant
-    const variantBase = base * (0.9 + idx * 0.05);
+    const variantBase = base * (0.9 + idx * 0.02);
     const searchQuery = encodeURIComponent(
       `${color} ${outfitType} ${member.label} ${member.size}`,
     );
@@ -249,6 +514,7 @@ function generateOutfitVariants(member: MemberConfig): OutfitVariant[] {
       styleName: style,
       fullName,
       color,
+      garment: outfitType,
       platforms,
       lowestPrice,
       cheapestPlatform,
@@ -266,6 +532,321 @@ const MEMBER_EMOJIS: Record<string, string> = {
   infant_girl: "👶",
 };
 
+// ─────────────── FILTER STATE TYPE ───────────────
+interface FilterState {
+  selectedCategories: Set<string>;
+  selectedPlatforms: Set<string>;
+  maxPrice: number;
+  sortBy: string;
+}
+
+const DEFAULT_FILTER: FilterState = {
+  selectedCategories: new Set(),
+  selectedPlatforms: new Set(),
+  maxPrice: 5000,
+  sortBy: "Recommended",
+};
+
+const SORT_OPTIONS = [
+  "Recommended",
+  "Price: Low to High",
+  "Price: High to Low",
+  "Top Rated",
+];
+
+// ─────────────── SORT & FILTER LOGIC ───────────────
+function applyFiltersAndSort(
+  variants: OutfitVariant[],
+  filters: FilterState,
+): OutfitVariant[] {
+  let result = variants;
+
+  // Category filter
+  if (filters.selectedCategories.size > 0) {
+    const allowedStyles = new Set<string>();
+    for (const cat of filters.selectedCategories) {
+      for (const style of STYLE_CATEGORIES[cat] ?? []) {
+        allowedStyles.add(style);
+      }
+    }
+    result = result.filter((v) => allowedStyles.has(v.styleName));
+  }
+
+  // Platform filter
+  if (filters.selectedPlatforms.size > 0) {
+    result = result.filter((v) =>
+      v.platforms.some((p) => filters.selectedPlatforms.has(p.id)),
+    );
+  }
+
+  // Max price filter
+  result = result.filter((v) => v.lowestPrice <= filters.maxPrice);
+
+  // Sort
+  if (filters.sortBy === "Price: Low to High") {
+    result = [...result].sort((a, b) => a.lowestPrice - b.lowestPrice);
+  } else if (filters.sortBy === "Price: High to Low") {
+    result = [...result].sort((a, b) => b.lowestPrice - a.lowestPrice);
+  } else if (filters.sortBy === "Top Rated") {
+    result = [...result].sort((a, b) => {
+      const aRating = Math.max(...a.platforms.map((p) => p.rating));
+      const bRating = Math.max(...b.platforms.map((p) => p.rating));
+      return bRating - aRating;
+    });
+  }
+
+  return result;
+}
+
+// ─────────────── SORT & FILTER BAR COMPONENT ───────────────
+function SortFilterBar({
+  filters,
+  onChange,
+  totalCount,
+  filteredCount,
+}: {
+  filters: FilterState;
+  onChange: (f: FilterState) => void;
+  totalCount: number;
+  filteredCount: number;
+}) {
+  const [panelOpen, setPanelOpen] = useState(false);
+
+  const activeFilterCount =
+    filters.selectedCategories.size +
+    filters.selectedPlatforms.size +
+    (filters.maxPrice < 5000 ? 1 : 0);
+
+  const toggleCategory = (cat: string) => {
+    const next = new Set(filters.selectedCategories);
+    if (next.has(cat)) next.delete(cat);
+    else next.add(cat);
+    onChange({ ...filters, selectedCategories: next });
+  };
+
+  const togglePlatform = (pid: string) => {
+    const next = new Set(filters.selectedPlatforms);
+    if (next.has(pid)) next.delete(pid);
+    else next.add(pid);
+    onChange({ ...filters, selectedPlatforms: next });
+  };
+
+  const clearAll = () => {
+    onChange({ ...DEFAULT_FILTER, sortBy: filters.sortBy });
+  };
+
+  return (
+    <div className="mx-4 mt-3 mb-1">
+      {/* Top bar */}
+      <div className="flex items-center gap-2 flex-wrap">
+        {/* Sort By */}
+        <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5">
+          <SlidersHorizontal className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
+          <span className="text-xs font-semibold text-gray-600 whitespace-nowrap">
+            Sort:
+          </span>
+          <select
+            value={filters.sortBy}
+            onChange={(e) => onChange({ ...filters, sortBy: e.target.value })}
+            className="text-xs font-bold text-black bg-transparent outline-none cursor-pointer"
+            data-ocid="sort_filter.select"
+          >
+            {SORT_OPTIONS.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Filter toggle button */}
+        <button
+          type="button"
+          onClick={() => setPanelOpen((o) => !o)}
+          className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold border transition-colors ${
+            panelOpen || activeFilterCount > 0
+              ? "bg-blue-600 text-white border-blue-600"
+              : "bg-gray-50 text-gray-700 border-gray-200 hover:border-blue-400"
+          }`}
+          data-ocid="sort_filter.toggle"
+        >
+          <Filter className="w-3.5 h-3.5" />
+          Filters
+          {activeFilterCount > 0 && (
+            <span className="ml-0.5 bg-white text-blue-700 rounded-full w-4 h-4 text-[10px] flex items-center justify-center font-extrabold">
+              {activeFilterCount}
+            </span>
+          )}
+        </button>
+
+        {/* Results count badge */}
+        <span className="ml-auto text-xs font-semibold text-gray-500">
+          <span className="text-blue-700 font-extrabold">{filteredCount}</span>
+          <span> / {totalCount} styles</span>
+        </span>
+
+        {activeFilterCount > 0 && (
+          <button
+            type="button"
+            onClick={clearAll}
+            className="text-xs text-red-500 font-semibold hover:underline flex items-center gap-1"
+            data-ocid="sort_filter.clear_button"
+          >
+            <X className="w-3 h-3" /> Clear all
+          </button>
+        )}
+      </div>
+
+      {/* Active filter chips */}
+      {activeFilterCount > 0 && (
+        <div className="flex flex-wrap gap-1.5 mt-2">
+          {Array.from(filters.selectedCategories).map((cat) => (
+            <span
+              key={cat}
+              className="flex items-center gap-1 bg-blue-100 text-blue-800 text-[11px] font-semibold px-2 py-0.5 rounded-full"
+            >
+              {cat}
+              <button
+                type="button"
+                onClick={() => toggleCategory(cat)}
+                className="hover:text-red-500"
+              >
+                <X className="w-2.5 h-2.5" />
+              </button>
+            </span>
+          ))}
+          {Array.from(filters.selectedPlatforms).map((pid) => {
+            const plat = PLATFORMS.find((p) => p.id === pid);
+            return (
+              <span
+                key={pid}
+                className="flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full"
+                style={{ background: plat?.bg, color: plat?.color }}
+              >
+                {pid}
+                <button
+                  type="button"
+                  onClick={() => togglePlatform(pid)}
+                  className="opacity-70 hover:opacity-100"
+                >
+                  <X className="w-2.5 h-2.5" />
+                </button>
+              </span>
+            );
+          })}
+          {filters.maxPrice < 5000 && (
+            <span className="flex items-center gap-1 bg-green-100 text-green-800 text-[11px] font-semibold px-2 py-0.5 rounded-full">
+              Max ₹{filters.maxPrice.toLocaleString("en-IN")}
+              <button
+                type="button"
+                onClick={() => onChange({ ...filters, maxPrice: 5000 })}
+                className="hover:text-red-500"
+              >
+                <X className="w-2.5 h-2.5" />
+              </button>
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Collapsible filter panel */}
+      <AnimatePresence>
+        {panelOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="mt-2 bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-4">
+              {/* Style Category pills */}
+              <div>
+                <p className="text-xs font-bold text-gray-700 mb-2">
+                  Style Category
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {Object.keys(STYLE_CATEGORIES).map((cat) => (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => toggleCategory(cat)}
+                      className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border transition-colors ${
+                        filters.selectedCategories.has(cat)
+                          ? "bg-blue-600 text-white border-blue-600"
+                          : "bg-white text-gray-700 border-gray-300 hover:border-blue-400"
+                      }`}
+                      data-ocid="sort_filter.category_toggle"
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Platform pills */}
+              <div>
+                <p className="text-xs font-bold text-gray-700 mb-2">Platform</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {PLATFORMS.map((plat) => (
+                    <button
+                      key={plat.id}
+                      type="button"
+                      onClick={() => togglePlatform(plat.id)}
+                      className={`text-[11px] font-bold px-3 py-1 rounded-full border-2 transition-all ${
+                        filters.selectedPlatforms.has(plat.id)
+                          ? "shadow-md scale-105"
+                          : "opacity-70 hover:opacity-100"
+                      }`}
+                      style={{
+                        background: filters.selectedPlatforms.has(plat.id)
+                          ? plat.color
+                          : plat.bg,
+                        color: filters.selectedPlatforms.has(plat.id)
+                          ? "#fff"
+                          : plat.color,
+                        borderColor: plat.color,
+                      }}
+                      data-ocid="sort_filter.platform_toggle"
+                    >
+                      {plat.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Max price slider */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs font-bold text-gray-700">Max Price</p>
+                  <span className="text-xs font-extrabold text-blue-700">
+                    ₹{filters.maxPrice.toLocaleString("en-IN")}
+                  </span>
+                </div>
+                <Slider
+                  min={200}
+                  max={5000}
+                  step={100}
+                  value={[filters.maxPrice]}
+                  onValueChange={([val]) =>
+                    onChange({ ...filters, maxPrice: val })
+                  }
+                  className="w-full"
+                  data-ocid="sort_filter.price_slider"
+                />
+                <div className="flex justify-between text-[10px] text-gray-400 mt-1">
+                  <span>₹200</span>
+                  <span>₹5,000</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 // ─────────────── OUTFIT VARIANT CARD ───────────────
 function OutfitVariantCard({
   variant,
@@ -281,6 +862,16 @@ function OutfitVariantCard({
   const cheapPlat = variant.platforms.find(
     (p) => p.id === variant.cheapestPlatform,
   );
+  const [imgError, setImgError] = useState(false);
+
+  // Deterministic seed based on variant index + garment name
+  const imgSeed = `outfit-${variant.variantIndex}-${variant.fullName.replace(/\s+/g, "-").toLowerCase().slice(0, 20)}`;
+  const imgUrl = `https://picsum.photos/seed/${imgSeed}/160/200`;
+
+  const fallbackEmoji = getGarmentEmoji(variant.garment);
+  const fallbackBg = isMulti
+    ? "linear-gradient(135deg,#FF6B6B,#FFD700,#4169E1)"
+    : colorHex;
 
   return (
     <button
@@ -294,30 +885,50 @@ function OutfitVariantCard({
       style={{ width: 160 }}
       data-ocid="outfit_variant.card"
     >
-      {/* Color swatch */}
+      {/* Product image area */}
       <div
-        className="h-28 w-full relative flex items-center justify-center"
+        className="relative w-full overflow-hidden flex-shrink-0"
         style={{
-          background: isMulti
-            ? "linear-gradient(135deg,#FF6B6B,#FFD700,#4169E1)"
-            : `${colorHex}33`,
+          height: 140,
           borderBottom: `4px solid ${isMulti ? "#FFD700" : colorHex}`,
         }}
       >
+        {!imgError ? (
+          <img
+            src={imgUrl}
+            alt={variant.fullName}
+            className="w-full h-full object-cover"
+            onError={() => setImgError(true)}
+            loading="lazy"
+          />
+        ) : (
+          /* Fallback: color bg + clothing emoji */
+          <div
+            className="w-full h-full flex items-center justify-center text-5xl"
+            style={{ background: fallbackBg }}
+          >
+            {fallbackEmoji}
+          </div>
+        )}
+
+        {/* Bottom gradient overlay for badge readability */}
         <div
-          className="w-16 h-16 rounded-full border-4 border-white shadow-md"
+          className="absolute inset-x-0 bottom-0 h-10 pointer-events-none"
           style={{
-            background: isMulti
-              ? "linear-gradient(135deg,#FF6B6B,#FFD700,#4169E1)"
-              : colorHex,
+            background:
+              "linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 100%)",
           }}
         />
+
+        {/* SELECTED badge — top left */}
         {isSelected && (
-          <span className="absolute top-2 left-2 bg-blue-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full">
+          <span className="absolute top-2 left-2 bg-blue-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-md z-10">
             SELECTED
           </span>
         )}
-        <span className="absolute top-2 right-2 bg-white/90 text-gray-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow">
+
+        {/* Style name badge — top right */}
+        <span className="absolute top-2 right-2 bg-white/90 text-gray-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow z-10 max-w-[80px] truncate">
           {variant.styleName}
         </span>
       </div>
@@ -368,10 +979,18 @@ function OutfitVariantCard({
 // ─────────────── MEMBER RESULT SECTION ───────────────
 function MemberSection({ member }: { member: MemberConfig }) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const variants = generateOutfitVariants(member);
+  const allVariants = generateOutfitVariants(member);
   const [selectedVariantIdx, setSelectedVariantIdx] = useState(0);
-  const selectedVariant = variants[selectedVariantIdx];
+  const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTER);
   const emoji = MEMBER_EMOJIS[member.id] ?? "🧑";
+
+  const filteredVariants = applyFiltersAndSort(allVariants, filters);
+
+  // Clamp selected index when filters change
+  const clampedSelectedIdx =
+    selectedVariantIdx < filteredVariants.length ? selectedVariantIdx : 0;
+  const selectedVariant =
+    filteredVariants[clampedSelectedIdx] ?? allVariants[0];
 
   const scroll = (dir: "left" | "right") => {
     if (scrollRef.current) {
@@ -390,6 +1009,11 @@ function MemberSection({ member }: { member: MemberConfig }) {
 
   const lowestCompPrice = Math.min(...comparisonRows.map((r) => r.price));
 
+  const hasActiveFilters =
+    filters.selectedCategories.size > 0 ||
+    filters.selectedPlatforms.size > 0 ||
+    filters.maxPrice < 5000;
+
   return (
     <motion.section
       initial={{ opacity: 0, y: 20 }}
@@ -404,130 +1028,174 @@ function MemberSection({ member }: { member: MemberConfig }) {
           {emoji} For {member.label} — {member.garment} ({member.size})
         </h2>
         <p className="text-blue-100 text-sm">
-          {variants.length} outfit options in {member.color}
+          {allVariants.length} outfit options in {member.color}
         </p>
       </div>
 
-      {/* Horizontal outfit scroll with arrows */}
-      <div className="relative px-2 pt-4 pb-2">
-        {/* Left arrow */}
-        <button
-          type="button"
-          onClick={() => scroll("left")}
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors"
-          data-ocid="outfit_scroll.pagination_prev"
-          aria-label="Scroll left"
-        >
-          <ChevronLeft className="w-5 h-5 text-gray-700" />
-        </button>
+      {/* Sort & Filter Bar */}
+      <SortFilterBar
+        filters={filters}
+        onChange={(f) => {
+          setFilters(f);
+          setSelectedVariantIdx(0);
+        }}
+        totalCount={allVariants.length}
+        filteredCount={filteredVariants.length}
+      />
 
-        {/* Scrollable outfit row */}
+      {/* Outfit scroll or empty state */}
+      {filteredVariants.length === 0 ? (
         <div
-          ref={scrollRef}
-          className="flex gap-3 overflow-x-auto px-8 py-2"
-          style={{ scrollbarWidth: "none" }}
+          className="mx-4 my-4 flex flex-col items-center justify-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-300"
+          data-ocid="outfit_scroll.empty_state"
         >
-          {variants.map((variant, idx) => (
-            <OutfitVariantCard
-              key={variant.variantIndex}
-              variant={variant}
-              isSelected={selectedVariantIdx === idx}
-              onSelect={() => setSelectedVariantIdx(idx)}
-            />
-          ))}
+          <p className="text-3xl mb-2">🔍</p>
+          <p className="text-sm font-semibold text-gray-700 mb-1">
+            No styles match your filters.
+          </p>
+          <p className="text-xs text-gray-400 mb-3">
+            Adjust or clear your filters to see all 100 options.
+          </p>
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={() => setFilters(DEFAULT_FILTER)}
+              className="flex items-center gap-1.5 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-full transition-colors"
+              data-ocid="outfit_scroll.clear_filters_button"
+            >
+              <X className="w-3 h-3" /> Clear Filters
+            </button>
+          )}
         </div>
+      ) : (
+        <div className="relative px-2 pt-3 pb-2">
+          {/* Left arrow */}
+          <button
+            type="button"
+            onClick={() => scroll("left")}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors"
+            data-ocid="outfit_scroll.pagination_prev"
+            aria-label="Scroll left"
+          >
+            <ChevronLeft className="w-5 h-5 text-gray-700" />
+          </button>
 
-        {/* Right arrow */}
-        <button
-          type="button"
-          onClick={() => scroll("right")}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors"
-          data-ocid="outfit_scroll.pagination_next"
-          aria-label="Scroll right"
-        >
-          <ChevronRight className="w-5 h-5 text-gray-700" />
-        </button>
-      </div>
+          {/* Scrollable outfit row */}
+          <div
+            ref={scrollRef}
+            className="flex gap-3 overflow-x-auto px-8 py-2"
+            style={{ scrollbarWidth: "none" }}
+          >
+            {filteredVariants.map((variant, idx) => (
+              <OutfitVariantCard
+                key={variant.variantIndex}
+                variant={variant}
+                isSelected={clampedSelectedIdx === idx}
+                onSelect={() => setSelectedVariantIdx(idx)}
+              />
+            ))}
+          </div>
+
+          {/* Right arrow */}
+          <button
+            type="button"
+            onClick={() => scroll("right")}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors"
+            data-ocid="outfit_scroll.pagination_next"
+            aria-label="Scroll right"
+          >
+            <ChevronRight className="w-5 h-5 text-gray-700" />
+          </button>
+        </div>
+      )}
 
       {/* Selected variant label */}
-      <div className="px-5 pb-1">
-        <p className="text-xs text-gray-500">
-          Showing prices for:{" "}
-          <span className="font-bold text-blue-600">
-            {selectedVariant.fullName}
-          </span>
-        </p>
-      </div>
+      {filteredVariants.length > 0 && (
+        <div className="px-5 pb-1">
+          <p className="text-xs text-gray-500">
+            Showing prices for:{" "}
+            <span className="font-bold text-blue-600">
+              {selectedVariant.fullName}
+            </span>
+          </p>
+        </div>
+      )}
 
       {/* Price comparison table */}
-      <div className="px-4 pb-5 pt-2" data-ocid="price_comparison.table">
-        <div className="flex items-center gap-2 mb-2">
-          <TrendingDown className="w-4 h-4 text-green-600" />
-          <span className="font-bold text-sm text-black">Price Comparison</span>
-        </div>
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Platform</TableHead>
-                <TableHead>Outfit</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Rating</TableHead>
-                <TableHead>Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {comparisonRows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  className={row.price === lowestCompPrice ? "bg-green-50" : ""}
-                  data-ocid="price_comparison.row"
-                >
-                  <TableCell>
-                    <span
-                      className="text-xs font-bold px-2 py-0.5 rounded-full"
-                      style={{ background: row.bg, color: row.color }}
-                    >
-                      {row.label}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-xs max-w-[160px] truncate">
-                    {selectedVariant.fullName}
-                  </TableCell>
-                  <TableCell
-                    className={`font-extrabold ${
-                      row.price === lowestCompPrice
-                        ? "text-green-600"
-                        : "text-black"
-                    }`}
-                  >
-                    ₹{row.price.toLocaleString("en-IN")}
-                    {row.price === lowestCompPrice && (
-                      <span className="ml-1 text-[10px] bg-green-100 text-green-700 rounded px-1">
-                        LOWEST
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-yellow-600 font-semibold">
-                    ★ {row.rating}
-                  </TableCell>
-                  <TableCell>
-                    <a
-                      href={row.buyUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline text-xs font-bold flex items-center gap-1"
-                      data-ocid="price_table.buy_button"
-                    >
-                      Buy <ExternalLink className="w-3 h-3" />
-                    </a>
-                  </TableCell>
+      {filteredVariants.length > 0 && (
+        <div className="px-4 pb-5 pt-2" data-ocid="price_comparison.table">
+          <div className="flex items-center gap-2 mb-2">
+            <TrendingDown className="w-4 h-4 text-green-600" />
+            <span className="font-bold text-sm text-black">
+              Price Comparison
+            </span>
+          </div>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Platform</TableHead>
+                  <TableHead>Outfit</TableHead>
+                  <TableHead>Price</TableHead>
+                  <TableHead>Rating</TableHead>
+                  <TableHead>Action</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {comparisonRows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    className={
+                      row.price === lowestCompPrice ? "bg-green-50" : ""
+                    }
+                    data-ocid="price_comparison.row"
+                  >
+                    <TableCell>
+                      <span
+                        className="text-xs font-bold px-2 py-0.5 rounded-full"
+                        style={{ background: row.bg, color: row.color }}
+                      >
+                        {row.label}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-xs max-w-[160px] truncate">
+                      {selectedVariant.fullName}
+                    </TableCell>
+                    <TableCell
+                      className={`font-extrabold ${
+                        row.price === lowestCompPrice
+                          ? "text-green-600"
+                          : "text-black"
+                      }`}
+                    >
+                      ₹{row.price.toLocaleString("en-IN")}
+                      {row.price === lowestCompPrice && (
+                        <span className="ml-1 text-[10px] bg-green-100 text-green-700 rounded px-1">
+                          LOWEST
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-yellow-600 font-semibold">
+                      ★ {row.rating}
+                    </TableCell>
+                    <TableCell>
+                      <a
+                        href={row.buyUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline text-xs font-bold flex items-center gap-1"
+                        data-ocid="price_table.buy_button"
+                      >
+                        Buy <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </div>
-      </div>
+      )}
     </motion.section>
   );
 }
@@ -599,7 +1267,7 @@ export default function ResultsPage({
           </h1>
           <p className="text-black/80 mt-1">
             {members.length} member{members.length > 1 ? "s" : ""} &bull; Scroll
-            left &amp; right to explore outfit styles
+            left &amp; right to explore 100 outfit styles
           </p>
         </motion.div>
 
