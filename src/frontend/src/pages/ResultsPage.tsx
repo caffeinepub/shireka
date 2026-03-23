@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 import {
   Table,
@@ -18,13 +19,16 @@ import {
   Heart,
   Share2,
   SlidersHorizontal,
+  Sparkles,
   TrendingDown,
   X,
+  ZoomIn,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import type { MemberConfig, OutfitFinderState, Page } from "../App";
+import { useWishlistContext } from "../contexts/WishlistContext";
 
 interface ResultsPageProps {
   navigate: (p: Page) => void;
@@ -246,116 +250,253 @@ const STYLE_CATEGORIES: Record<string, string[]> = {
   ],
 };
 
-// ─────────────── OUTFIT VARIANT STYLES (100 options) ───────────────
-const OUTFIT_STYLES = [
-  // Original classics
-  "Regular Fit",
-  "Slim Fit",
-  "Embroidered",
-  "Printed",
-  "Plain",
-  "Designer",
-  "Festive",
-  // Fit types
-  "Relaxed Fit",
-  "Oversized",
-  "Tailored",
-  "Straight Cut",
-  "A-Line",
-  "Flared",
-  "Asymmetric",
-  "Comfort Fit",
-  "Athletic Fit",
-  "Boxy Fit",
-  "Cropped",
-  // Prints & patterns
-  "Floral",
-  "Geometric",
-  "Paisley",
-  "Abstract",
-  "Striped",
-  "Checked",
-  "Polka Dot",
-  "Animal Print",
-  "Tie-Dye",
-  "Batik",
-  "Block Print",
-  "Ikat",
-  "Chevron",
-  "Camouflage",
-  "Ombre",
-  "Digital Print",
-  "Kalamkari",
-  "Ajrakh Print",
-  "Dabu Print",
-  "Madhubani",
-  // Occasion & styles
-  "Casual",
-  "Formal",
-  "Semi-Formal",
-  "Party Wear",
-  "Wedding",
-  "Bridal",
-  "Traditional",
-  "Ethnic",
-  "Contemporary",
-  "Fusion",
-  "Boho",
-  "Minimalist",
-  "Luxury",
-  "Premium",
-  "Indo-Western",
-  "Resort Wear",
-  "Cocktail",
-  "Workwear",
-  "Loungewear",
-  "Athleisure",
-  // Fabric & finish
-  "Linen",
-  "Silk",
-  "Cotton",
-  "Velvet",
-  "Chiffon",
-  "Georgette",
-  "Chanderi",
-  "Khadi",
-  "Organza",
-  "Satin",
-  "Brocade",
-  "Net Fabric",
-  "Rayon",
-  "Modal",
-  "Crepe",
-  // Embellishments
-  "Zari Work",
-  "Mirror Work",
-  "Thread Work",
-  "Sequin",
-  "Beaded",
-  "Lacework",
-  "Resham Work",
-  "Kantha",
-  "Gota Patti",
-  "Cutdana",
-  "Mukesh Work",
-  "Chikankari",
-  "Phulkari",
-  "Bandhani",
-  "Leheriya",
-  // Regional styles
-  "Rajasthani",
-  "Lucknowi",
-  "Bengali",
-  "Banarasi",
-  "Kashmiri",
-  "Hyderabadi",
-  "Gujarati",
-  "Maharashtrian",
-  "Punjabi",
-  "Kanjeevaram",
-  "Paithani",
-  "Patola",
+const INDIAN_BRANDS = [
+  "Manyavar",
+  "Fabindia",
+  "W for Woman",
+  "Biba",
+  "Global Desi",
+  "Libas",
+  "Jaipur Kurti",
+  "Soch",
+  "Aurelia",
+  "Rangmanch",
+  "Ethnix",
+  "Tasva",
+  "Mohey",
+  "Meena Bazaar",
+  "Anokhi",
+  "FabAlley",
+  "Vark",
+  "Masaba",
+  "Ritu Kumar",
+  "AND",
+  "Pantaloons",
+  "Max Fashion",
+  "Westside",
+  "Taneira",
+  "Nalli",
+  "Vasansi",
+  "Raw Mango",
+  "Nimiyas",
+  "Aks",
+  "Vero Moda India",
 ];
+
+// ─────────────── FASHION UNSPLASH PHOTO SEEDS ───────────────
+const FASHION_PHOTO_SEEDS = [
+  "ethnic-kurta-1",
+  "ethnic-kurta-2",
+  "saree-silk-1",
+  "lehenga-bridal-1",
+  "sherwani-men-1",
+  "kurti-floral-1",
+  "dress-casual-1",
+  "salwar-suit-1",
+  "anarkali-frock-1",
+  "dhoti-kurta-1",
+  "shirt-men-1",
+  "top-women-1",
+  "jeans-women-1",
+  "blazer-men-1",
+  "indo-western-1",
+  "festive-wear-1",
+  "cotton-kurta-1",
+  "silk-saree-1",
+  "georgette-top-1",
+  "chiffon-dress-1",
+  "velvet-suit-1",
+  "banarasi-saree-1",
+  "lucknowi-kurta-1",
+  "phulkari-suit-1",
+  "rajasthani-dress-1",
+  "bandhani-saree-1",
+  "kanjivaram-1",
+  "patola-1",
+  "paithani-1",
+  "chaneri-1",
+  "khadi-1",
+  "organza-1",
+];
+
+function getProductImage(variantIndex: number, garment: string): string {
+  const seed = FASHION_PHOTO_SEEDS[variantIndex % FASHION_PHOTO_SEEDS.length];
+  return `https://picsum.photos/seed/${seed}-${garment
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .slice(0, 10)}-${variantIndex % 8}/400/500`;
+}
+
+function getBrand(variantIndex: number, garment: string): string {
+  const hash = simpleHash(garment + String(variantIndex * 7));
+  return INDIAN_BRANDS[hash % INDIAN_BRANDS.length];
+}
+
+// ─────────────── OUTFIT VARIANT STYLES (500 options) ───────────────
+function generateOutfitStyleNames(): string[] {
+  const bases = [
+    "Regular Fit",
+    "Slim Fit",
+    "Relaxed Fit",
+    "Oversized",
+    "Tailored",
+    "Straight Cut",
+    "A-Line",
+    "Flared",
+    "Asymmetric",
+    "Comfort Fit",
+    "Athletic Fit",
+    "Boxy Fit",
+    "Cropped",
+    "Embroidered",
+    "Printed",
+    "Plain",
+    "Designer",
+    "Festive",
+    "Floral",
+    "Geometric",
+    "Paisley",
+    "Abstract",
+    "Striped",
+    "Checked",
+    "Polka Dot",
+    "Animal Print",
+    "Tie-Dye",
+    "Batik",
+    "Block Print",
+    "Ikat",
+    "Chevron",
+    "Ombre",
+    "Digital Print",
+    "Kalamkari",
+    "Ajrakh Print",
+    "Dabu Print",
+    "Madhubani",
+    "Casual",
+    "Formal",
+    "Semi-Formal",
+    "Party Wear",
+    "Wedding",
+    "Bridal",
+    "Traditional",
+    "Ethnic",
+    "Contemporary",
+    "Fusion",
+    "Boho",
+    "Minimalist",
+    "Luxury",
+    "Premium",
+    "Indo-Western",
+    "Resort Wear",
+    "Cocktail",
+    "Workwear",
+    "Loungewear",
+    "Athleisure",
+    "Linen",
+    "Silk",
+    "Cotton",
+    "Velvet",
+    "Chiffon",
+    "Georgette",
+    "Chanderi",
+    "Khadi",
+    "Organza",
+    "Satin",
+    "Brocade",
+    "Net Fabric",
+    "Rayon",
+    "Modal",
+    "Crepe",
+    "Zari Work",
+    "Mirror Work",
+    "Thread Work",
+    "Sequin",
+    "Beaded",
+    "Lacework",
+    "Resham Work",
+    "Kantha",
+    "Gota Patti",
+    "Cutdana",
+    "Mukesh Work",
+    "Chikankari",
+    "Phulkari",
+    "Bandhani",
+    "Leheriya",
+    "Rajasthani",
+    "Lucknowi",
+    "Bengali",
+    "Banarasi",
+    "Kashmiri",
+    "Hyderabadi",
+    "Gujarati",
+    "Maharashtrian",
+    "Punjabi",
+    "Kanjeevaram",
+    "Paithani",
+    "Patola",
+  ];
+  const modifiers = [
+    "Classic",
+    "Modern",
+    "Heritage",
+    "Signature",
+    "Exclusive",
+    "Limited Edition",
+    "Artisan",
+    "Handcrafted",
+    "Premium",
+    "Festive Special",
+    "Bridal Collection",
+    "Everyday",
+    "Occasion",
+    "Luxe",
+    "Essential",
+    "Vibrant",
+    "Subtle",
+    "Rich",
+    "Delicate",
+    "Statement",
+    "Contemporary",
+    "Vintage",
+    "Seasonal",
+    "Bestseller",
+    "New Arrival",
+    "Comfort",
+    "Designer",
+    "Elegant",
+    "Trendy",
+    "Timeless",
+    "Handloom",
+    "Organic",
+    "Sustainable",
+    "Durable",
+    "Lightweight",
+    "Breathable",
+    "Soft Touch",
+    "Smooth",
+    "Textured",
+    "Embossed",
+    "Woven",
+    "Knit",
+    "Stretch",
+    "Stiff",
+    "Flowing",
+  ];
+  const styles: string[] = [...bases];
+  let idx = 0;
+  while (styles.length < 500) {
+    const base = bases[idx % bases.length];
+    const mod = modifiers[Math.floor(idx / bases.length) % modifiers.length];
+    const candidate = `${mod} ${base}`;
+    if (!styles.includes(candidate)) {
+      styles.push(candidate);
+    }
+    idx++;
+  }
+  return styles.slice(0, 500);
+}
+
+const OUTFIT_STYLES = generateOutfitStyleNames();
 
 // ─────────────── PRICE GENERATION ───────────────
 const BASE_PRICES: Record<string, number> = {
@@ -449,6 +590,8 @@ interface OutfitVariant {
   fullName: string;
   color: string;
   garment: string;
+  brand: string;
+  productImage: string;
   platforms: Array<{
     id: string;
     label: string;
@@ -515,6 +658,8 @@ function generateOutfitVariants(member: MemberConfig): OutfitVariant[] {
       fullName,
       color,
       garment: outfitType,
+      brand: getBrand(idx, outfitType),
+      productImage: getProductImage(idx, outfitType),
       platforms,
       lowestPrice,
       cheapestPlatform,
@@ -847,15 +992,260 @@ function SortFilterBar({
   );
 }
 
+// ─────────────── QUICK VIEW MODAL ───────────────
+function QuickViewModal({
+  variant,
+  onClose,
+  memberLabel,
+}: {
+  variant: OutfitVariant | null;
+  onClose: () => void;
+  memberLabel?: string;
+}) {
+  const isOpen = variant !== null;
+  const { addCombo, isInWishlist } = useWishlistContext();
+  const qvComboName = variant ? `${variant.color} ${variant.fullName}` : "";
+  const qvSaved = variant ? isInWishlist(qvComboName) : false;
+
+  const handleQvWishlist = () => {
+    if (!variant || qvSaved) return;
+    addCombo({
+      name: qvComboName,
+      occasion: "Twinning",
+      items: [
+        {
+          id: `qv_${variant.variantIndex}_${Date.now()}`,
+          memberLabel: memberLabel || "Member",
+          garment: variant.garment,
+          color: variant.color,
+          size: "",
+          styleName: variant.styleName,
+          fullName: variant.fullName,
+          lowestPrice: variant.lowestPrice,
+          cheapestPlatform: variant.cheapestPlatform,
+          imageUrl: variant.productImage,
+          platforms: variant.platforms.map((p) => ({
+            id: p.id,
+            label: p.label,
+            price: p.price,
+            buyUrl: p.buyUrl,
+          })),
+        },
+      ],
+    });
+    toast.success("Added to Wishlist! ❤️");
+  };
+  const colorHex = variant
+    ? (COLOR_HEX[variant.color] ?? "#cccccc")
+    : "#cccccc";
+  const isMulti = variant?.color === "Multi";
+  const [imgError, setImgError] = useState(false);
+
+  // Use shared product image (same across all platforms — "same product" concept)
+  const imgUrl = variant ? variant.productImage : "";
+  const fallbackEmoji = variant ? getGarmentEmoji(variant.garment) : "👕";
+  const fallbackBg = isMulti
+    ? "linear-gradient(135deg,#FF6B6B,#FFD700,#4169E1)"
+    : colorHex;
+
+  const cheapestPlatformObj = variant
+    ? variant.platforms.find((p) => p.id === variant.cheapestPlatform)
+    : null;
+
+  // Platform rows in canonical order
+  const comparisonRows = variant
+    ? (PLATFORMS.map((p) =>
+        variant.platforms.find((sp) => sp.id === p.id),
+      ).filter(Boolean) as OutfitVariant["platforms"])
+    : [];
+  const lowestPrice = variant
+    ? Math.min(...comparisonRows.map((r) => r.price))
+    : 0;
+
+  return (
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
+      <DialogContent
+        className="max-w-sm w-full p-0 overflow-hidden rounded-2xl"
+        data-ocid="quick_view.modal"
+      >
+        <DialogTitle className="sr-only">
+          {variant?.fullName ?? "Quick View"}
+        </DialogTitle>
+
+        {variant && (
+          <>
+            {/* Product image */}
+            <div
+              className="relative w-full overflow-hidden"
+              style={{
+                height: 280,
+                borderBottom: `4px solid ${isMulti ? "#FFD700" : colorHex}`,
+              }}
+            >
+              {!imgError ? (
+                <img
+                  key={variant.variantIndex}
+                  src={imgUrl}
+                  alt={variant.fullName}
+                  className="w-full h-full object-cover"
+                  onError={() => setImgError(true)}
+                />
+              ) : (
+                <div
+                  className="w-full h-full flex items-center justify-center text-7xl"
+                  style={{ background: fallbackBg }}
+                >
+                  {fallbackEmoji}
+                </div>
+              )}
+
+              {/* Bottom gradient */}
+              <div
+                className="absolute inset-x-0 bottom-0 h-16 pointer-events-none"
+                style={{
+                  background:
+                    "linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%)",
+                }}
+              />
+
+              {/* Badges on image */}
+              <div className="absolute top-3 right-3 z-10">
+                {variant.variantIndex % 4 === 0 && (
+                  <span className="flex items-center gap-1 bg-purple-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow">
+                    <Sparkles className="w-3 h-3" /> Recommended for You
+                  </span>
+                )}
+              </div>
+              {/* Badges on image */}
+              <div className="absolute bottom-3 left-3 flex items-center gap-2 z-10">
+                <span className="bg-white/90 text-gray-800 text-xs font-bold px-2.5 py-1 rounded-full shadow">
+                  {variant.styleName}
+                </span>
+                <span
+                  className="w-5 h-5 rounded-full border-2 border-white shadow"
+                  style={{
+                    background: isMulti
+                      ? "linear-gradient(135deg,#FF6B6B,#FFD700,#4169E1)"
+                      : colorHex,
+                  }}
+                  title={variant.color}
+                />
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-4 space-y-3">
+              {/* Name & price */}
+              <div>
+                <h3 className="text-base font-extrabold text-black leading-snug">
+                  {variant.fullName}
+                </h3>
+                <p className="text-2xl font-extrabold text-black mt-1">
+                  ₹{variant.lowestPrice.toLocaleString("en-IN")}
+                  <span className="text-xs font-normal text-gray-500 ml-2">
+                    lowest price
+                  </span>
+                </p>
+              </div>
+
+              {/* Platform price list */}
+              <div className="space-y-1.5">
+                {comparisonRows.map((row) => (
+                  <div
+                    key={row.id}
+                    className={`flex items-center gap-2 rounded-lg px-3 py-2 ${
+                      row.price === lowestPrice
+                        ? "bg-green-50 border border-green-200"
+                        : "bg-gray-50 border border-gray-100"
+                    }`}
+                    data-ocid="quick_view.price_row"
+                  >
+                    <span
+                      className="text-[11px] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
+                      style={{ background: row.bg, color: row.color }}
+                    >
+                      {row.label}
+                    </span>
+                    <span
+                      className={`font-extrabold text-sm flex-1 ${
+                        row.price === lowestPrice
+                          ? "text-green-700"
+                          : "text-black"
+                      }`}
+                    >
+                      ₹{row.price.toLocaleString("en-IN")}
+                      {row.price === lowestPrice && (
+                        <span className="ml-1 text-[10px] bg-green-100 text-green-700 rounded px-1">
+                          BEST
+                        </span>
+                      )}
+                    </span>
+                    <a
+                      href={row.buyUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 text-[11px] font-bold flex items-center gap-0.5 flex-shrink-0"
+                      data-ocid="quick_view.buy_link"
+                    >
+                      Buy <ExternalLink className="w-2.5 h-2.5" />
+                    </a>
+                  </div>
+                ))}
+              </div>
+
+              {/* Wishlist button */}
+              <button
+                type="button"
+                onClick={handleQvWishlist}
+                disabled={qvSaved}
+                className={`flex items-center justify-center gap-2 w-full border font-semibold py-2.5 rounded-xl transition-colors text-sm ${
+                  qvSaved
+                    ? "border-red-300 text-red-500 bg-red-50 cursor-default"
+                    : "border-gray-300 text-gray-700 hover:border-red-400 hover:text-red-500"
+                }`}
+                data-ocid="quick_view.wishlist_button"
+              >
+                <Heart className={`w-4 h-4 ${qvSaved ? "fill-red-500" : ""}`} />
+                {qvSaved ? "Saved to Wishlist" : "Add to Wishlist"}
+              </button>
+
+              {/* Buy Now CTA */}
+              {cheapestPlatformObj && (
+                <a
+                  href={cheapestPlatformObj.buyUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-colors text-sm"
+                  data-ocid="quick_view.buy_now_button"
+                >
+                  Buy Now on {cheapestPlatformObj.label}
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              )}
+            </div>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // ─────────────── OUTFIT VARIANT CARD ───────────────
 function OutfitVariantCard({
   variant,
   isSelected,
   onSelect,
+  onQuickView,
 }: {
   variant: OutfitVariant;
   isSelected: boolean;
   onSelect: () => void;
+  onQuickView?: () => void;
 }) {
   const colorHex = COLOR_HEX[variant.color] ?? "#cccccc";
   const isMulti = variant.color === "Multi";
@@ -864,9 +1254,8 @@ function OutfitVariantCard({
   );
   const [imgError, setImgError] = useState(false);
 
-  // Deterministic seed based on variant index + garment name
-  const imgSeed = `outfit-${variant.variantIndex}-${variant.fullName.replace(/\s+/g, "-").toLowerCase().slice(0, 20)}`;
-  const imgUrl = `https://picsum.photos/seed/${imgSeed}/160/200`;
+  // Use shared product image (same across all platforms)
+  const imgUrl = variant.productImage;
 
   const fallbackEmoji = getGarmentEmoji(variant.garment);
   const fallbackBg = isMulti
@@ -920,6 +1309,25 @@ function OutfitVariantCard({
           }}
         />
 
+        {/* Platform badge — top left (always visible); shifts down when SELECTED */}
+        {!isSelected && cheapPlat && (
+          <span
+            className={`absolute top-2 left-2 z-10 text-[9px] font-bold px-2 py-0.5 rounded-full shadow-md text-white ${
+              cheapPlat.id === "amazon"
+                ? "bg-orange-500"
+                : cheapPlat.id === "myntra"
+                  ? "bg-pink-500"
+                  : cheapPlat.id === "flipkart"
+                    ? "bg-blue-600"
+                    : cheapPlat.id === "ajio"
+                      ? "bg-red-600"
+                      : "bg-purple-600"
+            }`}
+          >
+            {cheapPlat.id.charAt(0).toUpperCase() + cheapPlat.id.slice(1)}
+          </span>
+        )}
+
         {/* SELECTED badge — top left */}
         {isSelected && (
           <span className="absolute top-2 left-2 bg-blue-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-md z-10">
@@ -927,20 +1335,64 @@ function OutfitVariantCard({
           </span>
         )}
 
-        {/* Style name badge — top right */}
+        {/* Style name badge — top right (shifted down when zoom button present) */}
         <span className="absolute top-2 right-2 bg-white/90 text-gray-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow z-10 max-w-[80px] truncate">
           {variant.styleName}
         </span>
+
+        {/* Zoom / Quick View button */}
+        {onQuickView && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onQuickView();
+            }}
+            className="absolute bottom-2 right-2 z-20 w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-blue-50 transition-colors"
+            aria-label="Quick view"
+            data-ocid="outfit_variant.open_modal_button"
+          >
+            <ZoomIn className="w-3.5 h-3.5 text-blue-600" />
+          </button>
+        )}
       </div>
 
       {/* Card body */}
       <div className="p-3 flex flex-col gap-1.5 flex-1 bg-white">
+        {/* AI Recommendation badge */}
+        {variant.variantIndex % 4 === 0 && (
+          <span className="inline-flex items-center gap-1 bg-purple-100 text-purple-700 text-[9px] font-bold px-2 py-0.5 rounded-full">
+            <Sparkles className="w-2.5 h-2.5" /> Recommended for You
+          </span>
+        )}
+        <p className="text-[10px] font-bold text-blue-600 leading-tight truncate">
+          {variant.brand}
+        </p>
         <p className="text-[11px] font-semibold text-gray-800 leading-tight line-clamp-2">
           {variant.fullName}
         </p>
-        <p className="text-base font-extrabold text-black">
-          ₹{variant.lowestPrice.toLocaleString("en-IN")}
-        </p>
+        {/* Best Deal section */}
+        <div>
+          <p className="text-base font-extrabold text-black">
+            ₹{variant.lowestPrice.toLocaleString("en-IN")}
+          </p>
+          {variant.platforms.length > 1 &&
+            (() => {
+              const prices = variant.platforms.map((p) => p.price);
+              const maxP = Math.max(...prices);
+              const savings = maxP - variant.lowestPrice;
+              return savings > 0 ? (
+                <div className="flex items-center gap-1 mt-0.5">
+                  <span className="text-[9px] bg-green-100 text-green-700 font-bold px-1.5 py-0.5 rounded-full">
+                    Lowest Price 🔥
+                  </span>
+                  <span className="text-[9px] text-green-600 font-bold">
+                    Save ₹{savings.toLocaleString("en-IN")}
+                  </span>
+                </div>
+              ) : null;
+            })()}
+        </div>
         <p className="text-[10px] text-gray-500">
           Best on{" "}
           <span className="font-bold" style={{ color: cheapPlat?.color }}>
@@ -965,7 +1417,10 @@ function OutfitVariantCard({
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="mt-1 flex items-center justify-center gap-1 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold px-2 py-1.5 rounded-lg transition-colors"
+            className="mt-1 flex items-center justify-center gap-1 text-white text-[10px] font-bold px-2 py-1.5 rounded-lg transition-opacity hover:opacity-90"
+            style={{
+              background: "linear-gradient(135deg, #ec4899 0%, #f97316 100%)",
+            }}
             data-ocid="outfit_variant.buy_button"
           >
             Buy Now <ExternalLink className="w-2.5 h-2.5" />
@@ -982,6 +1437,8 @@ function MemberSection({ member }: { member: MemberConfig }) {
   const allVariants = generateOutfitVariants(member);
   const [selectedVariantIdx, setSelectedVariantIdx] = useState(0);
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTER);
+  const [quickViewVariant, setQuickViewVariant] =
+    useState<OutfitVariant | null>(null);
   const emoji = MEMBER_EMOJIS[member.id] ?? "🧑";
 
   const filteredVariants = applyFiltersAndSort(allVariants, filters);
@@ -1028,7 +1485,8 @@ function MemberSection({ member }: { member: MemberConfig }) {
           {emoji} For {member.label} — {member.garment} ({member.size})
         </h2>
         <p className="text-blue-100 text-sm">
-          {allVariants.length} outfit options in {member.color}
+          {allVariants.length} outfit styles in {member.color} — Compare prices
+          across platforms
         </p>
       </div>
 
@@ -1092,6 +1550,7 @@ function MemberSection({ member }: { member: MemberConfig }) {
                 variant={variant}
                 isSelected={clampedSelectedIdx === idx}
                 onSelect={() => setSelectedVariantIdx(idx)}
+                onQuickView={() => setQuickViewVariant(variant)}
               />
             ))}
           </div>
@@ -1124,10 +1583,29 @@ function MemberSection({ member }: { member: MemberConfig }) {
       {/* Price comparison table */}
       {filteredVariants.length > 0 && (
         <div className="px-4 pb-5 pt-2" data-ocid="price_comparison.table">
+          {/* Same product badge */}
+          <div className="flex items-center gap-3 mb-3 bg-blue-50 border border-blue-200 rounded-xl p-3">
+            <img
+              src={selectedVariant.productImage}
+              alt={selectedVariant.fullName}
+              className="w-14 h-14 rounded-lg object-cover border-2 border-blue-200 flex-shrink-0"
+            />
+            <div className="min-w-0">
+              <span className="inline-flex items-center gap-1 bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full mb-1">
+                ✅ Same Product
+              </span>
+              <p className="text-xs font-bold text-blue-800 leading-tight truncate">
+                {selectedVariant.brand}
+              </p>
+              <p className="text-[11px] text-blue-600 leading-tight truncate">
+                {selectedVariant.color} · {selectedVariant.styleName}
+              </p>
+            </div>
+          </div>
           <div className="flex items-center gap-2 mb-2">
             <TrendingDown className="w-4 h-4 text-green-600" />
             <span className="font-bold text-sm text-black">
-              Price Comparison
+              Price Comparison Across Platforms
             </span>
           </div>
           <div className="overflow-x-auto">
@@ -1183,10 +1661,11 @@ function MemberSection({ member }: { member: MemberConfig }) {
                         href={row.buyUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline text-xs font-bold flex items-center gap-1"
+                        className="inline-flex items-center gap-1 text-[11px] font-bold px-3 py-1.5 rounded-lg text-white transition-colors"
+                        style={{ backgroundColor: row.color }}
                         data-ocid="price_table.buy_button"
                       >
-                        Buy <ExternalLink className="w-3 h-3" />
+                        Buy Now <ExternalLink className="w-2.5 h-2.5" />
                       </a>
                     </TableCell>
                   </TableRow>
@@ -1196,6 +1675,13 @@ function MemberSection({ member }: { member: MemberConfig }) {
           </div>
         </div>
       )}
+
+      {/* Quick View Modal */}
+      <QuickViewModal
+        variant={quickViewVariant}
+        onClose={() => setQuickViewVariant(null)}
+        memberLabel={member.label}
+      />
     </motion.section>
   );
 }
@@ -1205,13 +1691,32 @@ export default function ResultsPage({
   navigate,
   finderState,
 }: ResultsPageProps) {
-  const [wishlistSaved, setWishlistSaved] = useState(false);
+  const { addCombo, isInWishlist } = useWishlistContext();
   const { members } = finderState;
   const color = members[0]?.color ?? "";
+  const comboName = `${color} Twinning Combo – ${members.map((m) => m.label).join(", ")}`;
+  const wishlistSaved = isInWishlist(comboName);
 
   const handleWishlist = () => {
-    setWishlistSaved(true);
-    toast.success("Saved to wishlist!");
+    if (wishlistSaved) return;
+    addCombo({
+      name: comboName,
+      occasion: finderState.occasion || "Twinning",
+      items: members.map((m) => ({
+        id: `${m.id}_${Date.now()}`,
+        memberLabel: m.label,
+        garment: m.garment,
+        color: m.color,
+        size: m.size,
+        styleName: m.garment,
+        fullName: `${m.color} ${m.garment}`,
+        lowestPrice: 0,
+        cheapestPlatform: "",
+        imageUrl: `https://picsum.photos/seed/outfit-0-${m.garment.toLowerCase().replace(/\s+/g, "-")}/160/200`,
+        platforms: [],
+      })),
+    });
+    toast.success("Saved to wishlist! ❤️");
   };
 
   const handleShare = async () => {
@@ -1267,7 +1772,10 @@ export default function ResultsPage({
           </h1>
           <p className="text-black/80 mt-1">
             {members.length} member{members.length > 1 ? "s" : ""} &bull; Scroll
-            left &amp; right to explore 100 outfit styles
+            left &amp; right to explore 500 outfit styles
+          </p>
+          <p className="text-white/90 text-sm mt-2 font-semibold bg-white/20 inline-block px-4 py-1.5 rounded-full">
+            🛒 Compare prices for the same outfit across 5 platforms
           </p>
         </motion.div>
 

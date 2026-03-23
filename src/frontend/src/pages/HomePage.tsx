@@ -1,3 +1,4 @@
+import { ProductCard } from "@/components/ProductCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -6,15 +7,16 @@ import {
   Heart,
   ShoppingBag,
   Sparkles,
+  Users,
 } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
-import type { Page } from "../App";
+import type { FindMode, Page } from "../App";
 import { COLORS, MOCK_PRODUCTS, OCCASIONS } from "../data/products";
 
 interface HomePageProps {
-  navigate: (p: Page) => void;
+  navigate: (p: Page, mode?: FindMode) => void;
 }
 
 const GIRLS_CATEGORIES = [
@@ -43,13 +45,30 @@ const BOYS_CATEGORIES = [
   "Ethnic Wear",
 ];
 
-const INFANT_AGE_RANGES = [
-  "0-3 Months",
-  "3-6 Months",
-  "6-9 Months",
-  "9-12 Months",
-  "12-18 Months",
-  "18-24 Months",
+const BOY_BABY_CATEGORIES = [
+  "Onesies & Rompers",
+  "Sets & Suits",
+  "T-Shirts & Bodysuits",
+  "Shorts & Pants",
+  "Ethnic Wear",
+  "Sleepwear & Nightsuits",
+  "Dungarees & Jumpsuits",
+  "Swimwear",
+  "Winterwear",
+  "Party Wear",
+];
+
+const GIRL_BABY_CATEGORIES = [
+  "Frocks & Dresses",
+  "Onesies & Rompers",
+  "Sets & Suits",
+  "Tops & Bodysuits",
+  "Ethnic Wear",
+  "Sleepwear & Nightsuits",
+  "Dungarees & Jumpsuits",
+  "Swimwear",
+  "Winterwear",
+  "Party Wear",
 ];
 
 const TWINNING_GALLERY = [
@@ -111,8 +130,7 @@ interface KidsCardProps {
   borderClass: string;
   hoverBgClass: string;
   icon: string;
-  categories?: string[];
-  infantMode?: boolean;
+  categories: string[];
   onClick: () => void;
   ocid: string;
 }
@@ -126,14 +144,9 @@ function KidsCard({
   hoverBgClass,
   icon,
   categories,
-  infantMode,
   onClick,
   ocid,
 }: KidsCardProps) {
-  const [expandedInfant, setExpandedInfant] = useState<"girl" | "boy" | null>(
-    null,
-  );
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
@@ -166,114 +179,20 @@ function KidsCard({
 
       {/* Category list */}
       <div className="px-5 py-4 flex-1">
-        {!infantMode && categories && (
-          <ul className="space-y-1.5">
-            {categories.map((cat) => (
-              <li key={cat}>
-                <button
-                  type="button"
-                  onClick={onClick}
-                  className={`w-full text-left text-sm px-3 py-1.5 rounded-lg font-medium transition-all ${hoverBgClass} hover:pl-5`}
-                >
-                  <span className={`${accentClass} mr-2 text-xs`}>▸</span>
-                  {cat}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {infantMode && (
-          <div className="space-y-3">
-            {/* Baby Girl */}
-            <div>
+        <ul className="space-y-1.5">
+          {categories.map((cat) => (
+            <li key={cat}>
               <button
                 type="button"
-                onClick={() =>
-                  setExpandedInfant((prev) => (prev === "girl" ? null : "girl"))
-                }
-                className="w-full flex items-center justify-between px-3 py-2 rounded-xl font-semibold text-sm tracking-wide bg-pink-100 text-pink-800 hover:bg-pink-200 transition-colors"
-                data-ocid="kids.infant.baby_girl.toggle"
+                onClick={onClick}
+                className={`w-full text-left text-sm px-3 py-1.5 rounded-lg font-medium transition-all ${hoverBgClass} hover:pl-5`}
               >
-                <span>👧 Baby Girl</span>
-                <ChevronRight
-                  className={`w-4 h-4 transition-transform ${
-                    expandedInfant === "girl" ? "rotate-90" : ""
-                  }`}
-                />
+                <span className={`${accentClass} mr-2 text-xs`}>▸</span>
+                {cat}
               </button>
-              <AnimatePresence>
-                {expandedInfant === "girl" && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.25 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="pt-2 pl-3 space-y-1">
-                      {INFANT_AGE_RANGES.map((age) => (
-                        <button
-                          type="button"
-                          key={age}
-                          onClick={onClick}
-                          className="w-full text-left text-xs px-3 py-1.5 rounded-lg font-medium bg-pink-50 hover:bg-pink-100 transition-colors hover:pl-5"
-                        >
-                          <span className="text-pink-400 mr-2">♡</span>
-                          {age}
-                        </button>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* Baby Boy */}
-            <div>
-              <button
-                type="button"
-                onClick={() =>
-                  setExpandedInfant((prev) => (prev === "boy" ? null : "boy"))
-                }
-                className="w-full flex items-center justify-between px-3 py-2 rounded-xl font-semibold text-sm tracking-wide bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors"
-                data-ocid="kids.infant.baby_boy.toggle"
-              >
-                <span>👦 Baby Boy</span>
-                <ChevronRight
-                  className={`w-4 h-4 transition-transform ${
-                    expandedInfant === "boy" ? "rotate-90" : ""
-                  }`}
-                />
-              </button>
-              <AnimatePresence>
-                {expandedInfant === "boy" && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.25 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="pt-2 pl-3 space-y-1">
-                      {INFANT_AGE_RANGES.map((age) => (
-                        <button
-                          type="button"
-                          key={age}
-                          onClick={onClick}
-                          className="w-full text-left text-xs px-3 py-1.5 rounded-lg font-medium bg-blue-50 hover:bg-blue-100 transition-colors hover:pl-5"
-                        >
-                          <span className="text-blue-400 mr-2">♡</span>
-                          {age}
-                        </button>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </div>
-        )}
+            </li>
+          ))}
+        </ul>
       </div>
 
       {/* Footer CTA */}
@@ -334,55 +253,56 @@ export default function HomePage({ navigate }: HomePageProps) {
     <div>
       {/* Hero Section */}
       <section
-        className="relative h-[70vh] min-h-[500px] overflow-hidden"
+        className="relative h-[80vh] min-h-[560px] overflow-hidden"
         data-ocid="hero.section"
       >
         <img
-          src="/assets/generated/hero-family-twinning.dim_1400x700.jpg"
+          src="/assets/generated/hero-twinning-bg.dim_1600x900.jpg"
           alt="Family twinning outfits"
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/20" />
         <div className="relative z-10 h-full flex items-center">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, ease: "easeOut" }}
-              className="max-w-xl"
+              transition={{ duration: 0.75, ease: "easeOut" }}
+              className="max-w-2xl"
             >
               <p className="text-white/70 text-xs tracking-[0.3em] uppercase mb-3">
-                India's #1 Twinning Platform
+                India&apos;s #1 Twinning Platform
               </p>
-              <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight tracking-wide uppercase mb-4">
-                SHIREKA
-                <span className="block text-2xl sm:text-3xl md:text-4xl font-medium mt-1">
-                  Twinning in Style
-                </span>
+              <h1 className="font-display text-5xl sm:text-6xl md:text-7xl font-bold text-white leading-tight tracking-tight mb-5">
+                Find Perfect Twinning Outfits Instantly
               </h1>
-              <p className="text-white/80 text-base md:text-lg mb-8 leading-relaxed">
-                Discover perfectly matched outfits for couples, families, and
-                kids across India's top fashion platforms — all in one place.
+              <p className="text-white/90 text-lg md:text-xl mb-6 leading-relaxed font-medium">
+                Compare prices from Myntra, Amazon, Ajio, Flipkart &amp; Meesho
               </p>
-              <div className="flex flex-wrap gap-3">
-                <Button
-                  size="lg"
-                  className="bg-white text-foreground hover:bg-white/90 font-semibold tracking-wider"
-                  onClick={() => navigate("find")}
-                  data-ocid="hero.primary_button"
-                >
-                  SHOP COLLECTION
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-white text-white hover:bg-white/10 font-semibold tracking-wider"
-                  onClick={() => navigate("find")}
-                  data-ocid="hero.secondary_button"
-                >
-                  FIND YOUR MATCH
-                </Button>
+              <div className="flex flex-wrap gap-2 mb-8">
+                <span className="bg-white/20 text-white text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm">
+                  👗 500+ Outfit Styles
+                </span>
+                <span className="bg-white/20 text-white text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm">
+                  🛒 5 Platforms Compared
+                </span>
+                <span className="bg-white/20 text-white text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm">
+                  💰 Best Price Guaranteed
+                </span>
               </div>
+              <Button
+                size="lg"
+                className="text-white font-extrabold text-lg px-10 py-6 rounded-full shadow-2xl tracking-wide transition-transform hover:scale-105 active:scale-95 border-0"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #f43f5e 0%, #fb923c 100%)",
+                  boxShadow: "0 8px 32px rgba(244,63,94,0.5)",
+                }}
+                onClick={() => navigate("find")}
+                data-ocid="hero.primary_button"
+              >
+                🛍️ Start Finding Outfits
+              </Button>
             </motion.div>
           </div>
         </div>
@@ -396,6 +316,157 @@ export default function HomePage({ navigate }: HomePageProps) {
               }`}
             />
           ))}
+        </div>
+      </section>
+
+      {/* Category Cards Section */}
+      <section
+        className="py-14 px-4 bg-pink-50"
+        data-ocid="categories_browse.section"
+      >
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-10">
+            <p className="text-xs tracking-[0.3em] uppercase text-pink-500 font-semibold mb-2">
+              ✦ Explore Collections ✦
+            </p>
+            <h2 className="font-display text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
+              Browse by Category
+            </h2>
+            <p className="text-gray-500 text-base">
+              Choose your twinning style and compare prices instantly
+            </p>
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+            {[
+              {
+                label: "Couples",
+                emoji: "👫",
+                img: "/assets/generated/category-couples.dim_600x400.jpg",
+                ocid: "browse_couples",
+              },
+              {
+                label: "Family",
+                emoji: "👨‍👩‍👧",
+                img: "/assets/generated/category-family.dim_600x400.jpg",
+                ocid: "browse_family",
+              },
+              {
+                label: "Kids",
+                emoji: "🧒",
+                img: "/assets/generated/category-kids.dim_600x400.jpg",
+                ocid: "browse_kids",
+              },
+              {
+                label: "Friends",
+                emoji: "🤝",
+                img: "/assets/generated/category-friends.dim_600x400.jpg",
+                ocid: "browse_friends",
+              },
+            ].map((cat) => (
+              <div
+                key={cat.label}
+                className="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col"
+                data-ocid={`${cat.ocid}.card`}
+              >
+                <div className="overflow-hidden h-48">
+                  <img
+                    src={cat.img}
+                    alt={cat.label}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                </div>
+                <div className="p-4 flex flex-col items-center gap-3 flex-1 justify-between">
+                  <h3 className="font-bold text-gray-900 text-lg tracking-tight">
+                    {cat.emoji} {cat.label}
+                  </h3>
+                  <button
+                    type="button"
+                    className="w-full text-white font-extrabold text-sm py-2.5 px-4 rounded-full transition-transform hover:scale-105 active:scale-95 shadow-md border-0"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, #f43f5e 0%, #fb923c 100%)",
+                    }}
+                    onClick={() => navigate("find")}
+                    data-ocid={`${cat.ocid}.button`}
+                  >
+                    Explore
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Twinning Mode Section */}
+      <section className="bg-white py-14 px-4" data-ocid="twinning.section">
+        <div className="max-w-4xl mx-auto text-center mb-10">
+          <p className="text-xs tracking-[0.3em] uppercase text-blue-600 font-semibold mb-2">
+            ✦ Start Your Twinning Journey ✦
+          </p>
+          <h2 className="text-3xl md:text-4xl font-bold text-black mb-3">
+            Choose Your Twinning Style
+          </h2>
+          <p className="text-gray-500 text-base max-w-xl mx-auto">
+            Select members, pick matching outfits in your favorite color, and
+            compare prices across 5 Indian shopping platforms — all in one
+            place.
+          </p>
+        </div>
+        <div className="max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <motion.button
+            type="button"
+            whileHover={{ scale: 1.03, y: -4 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => navigate("find", "couple")}
+            data-ocid="twinning.couple.button"
+            className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-pink-400 via-rose-500 to-pink-600 text-white shadow-2xl shadow-pink-200 p-8 text-left flex flex-col gap-4 cursor-pointer border-0"
+          >
+            <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center text-4xl backdrop-blur-sm">
+              💑
+            </div>
+            <div>
+              <h3 className="text-2xl font-extrabold tracking-wide mb-1">
+                Couple Twinning ❤️
+              </h3>
+              <p className="text-white/80 text-sm leading-relaxed">
+                Find perfectly coordinated outfits for you and your partner.
+                Male & female options with matching colors and styles.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 text-white/90 text-sm font-semibold">
+              <Heart className="w-4 h-4" />
+              Male · Female options
+            </div>
+            <div className="absolute -bottom-8 -right-8 w-32 h-32 rounded-full bg-white/10 group-hover:scale-125 transition-transform duration-500" />
+          </motion.button>
+
+          <motion.button
+            type="button"
+            whileHover={{ scale: 1.03, y: -4 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => navigate("find", "family")}
+            data-ocid="twinning.family.button"
+            className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 text-white shadow-2xl shadow-blue-200 p-8 text-left flex flex-col gap-4 cursor-pointer border-0"
+          >
+            <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center text-4xl backdrop-blur-sm">
+              👨‍👩‍👧‍👦
+            </div>
+            <div>
+              <h3 className="text-2xl font-extrabold tracking-wide mb-1">
+                Family Twinning 👨‍👩‍👧
+              </h3>
+              <p className="text-white/80 text-sm leading-relaxed">
+                Dress your whole family in coordinated outfits. Add men, women,
+                boys, girls, and babies — up to 8 members.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-1.5 text-white/90 text-xs font-medium">
+              <Users className="w-3.5 h-3.5" />
+              Male · Female · Boys · Girls · Baby Boy · Baby Girl
+            </div>
+            <div className="absolute -bottom-8 -right-8 w-32 h-32 rounded-full bg-white/10 group-hover:scale-125 transition-transform duration-500" />
+          </motion.button>
         </div>
       </section>
 
@@ -479,7 +550,6 @@ export default function HomePage({ navigate }: HomePageProps) {
           {/* Gallery Grid — featured asymmetric layout */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-5">
             {TWINNING_GALLERY.map((item, idx) => {
-              // Featured items get more columns on large screens
               const colSpan = item.featured ? "lg:col-span-7" : "lg:col-span-5";
               const imgHeight = item.featured ? "h-[380px]" : "h-[340px]";
 
@@ -494,23 +564,16 @@ export default function HomePage({ navigate }: HomePageProps) {
                   onClick={() => navigate("find")}
                   data-ocid={`gallery.${item.id}.card`}
                 >
-                  {/* Image */}
                   <div className={`relative ${imgHeight} overflow-hidden`}>
                     <img
                       src={item.image}
                       alt={item.title}
                       className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-110"
                     />
-
-                    {/* Base gradient overlay */}
                     <div
                       className={`absolute inset-0 bg-gradient-to-t ${item.overlayGradient} via-transparent to-transparent opacity-70`}
                     />
-
-                    {/* Hover overlay with shimmer */}
                     <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-                    {/* Golden border glow on hover */}
                     <div
                       className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-amber-300/60 transition-all duration-500"
                       style={{
@@ -518,8 +581,6 @@ export default function HomePage({ navigate }: HomePageProps) {
                         transition: "box-shadow 0.5s",
                       }}
                     />
-
-                    {/* Badge top-left */}
                     <div className="absolute top-4 left-4">
                       <span
                         className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold tracking-wider shadow-lg ${item.badgeBg} ${item.badgeText}`}
@@ -532,8 +593,6 @@ export default function HomePage({ navigate }: HomePageProps) {
                         ✦ {item.badge}
                       </span>
                     </div>
-
-                    {/* Text content bottom */}
                     <div className="absolute bottom-0 left-0 right-0 p-5">
                       <h3
                         className="text-white font-bold text-xl md:text-2xl leading-tight"
@@ -544,8 +603,6 @@ export default function HomePage({ navigate }: HomePageProps) {
                       <p className="text-white/75 text-sm mt-0.5 tracking-wide">
                         {item.subtitle}
                       </p>
-
-                      {/* Shop Now — visible on hover */}
                       <div className="overflow-hidden mt-3">
                         <motion.div
                           initial={{ y: 30, opacity: 0 }}
@@ -592,22 +649,204 @@ export default function HomePage({ navigate }: HomePageProps) {
         </div>
       </section>
 
+      {/* Trending Twinning Outfits */}
+      <section className="py-16 bg-orange-50 px-4" data-ocid="trending.section">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-10">
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-black mb-2">
+              Trending Twinning Outfits 🔥
+            </h2>
+            <p className="text-gray-600 text-base">
+              Most loved matching outfits this season
+            </p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {(
+              [
+                {
+                  image: "linear-gradient(135deg, #f97316 0%, #ec4899 100%)",
+                  title: "Fabindia Couple Kurta Set — Deep Orange & Rose",
+                  price: 1299,
+                  originalPrice: 1799,
+                  discountPercent: 28,
+                  platform: "Amazon" as const,
+                },
+                {
+                  image: "linear-gradient(135deg, #f59e0b 0%, #f97316 100%)",
+                  title: "W for Woman Family Ethnic Combo — Mustard Yellow",
+                  price: 2199,
+                  originalPrice: 2999,
+                  discountPercent: 27,
+                  platform: "Ajio" as const,
+                },
+                {
+                  image: "linear-gradient(135deg, #facc15 0%, #fb923c 100%)",
+                  title: "Global Desi Sibling Twinning Set — Sunshine Yellow",
+                  price: 899,
+                  originalPrice: 1299,
+                  discountPercent: 31,
+                  platform: "Meesho" as const,
+                },
+                {
+                  image: "linear-gradient(135deg, #f43f5e 0%, #e11d48 100%)",
+                  title: "Biba Matching Lehenga Duo — Deep Crimson Red",
+                  price: 3299,
+                  originalPrice: 4999,
+                  discountPercent: 34,
+                  platform: "Myntra" as const,
+                },
+              ] as {
+                image: string;
+                title: string;
+                price: number;
+                originalPrice: number;
+                discountPercent: number;
+                platform: "Amazon" | "Myntra" | "Flipkart" | "Ajio" | "Meesho";
+              }[]
+            ).map((item, idx) => (
+              <div key={item.title} data-ocid={`trending.item.${idx + 1}`}>
+                <ProductCard {...item} ocidSuffix={`trending_${idx + 1}`} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Wedding Special */}
+      <section className="py-16 bg-rose-50 px-4" data-ocid="wedding.section">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-10">
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-black mb-2">
+              Wedding Special 💍
+            </h2>
+            <p className="text-gray-600 text-base">
+              Coordinated bridal and festive wear for the whole family
+            </p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {(
+              [
+                {
+                  image: "linear-gradient(135deg, #ec4899 0%, #be185d 100%)",
+                  title: "Sabyasachi Style Bridal Lehenga Pair — Deep Pink",
+                  price: 7499,
+                  originalPrice: 12999,
+                  discountPercent: 42,
+                  platform: "Myntra" as const,
+                },
+                {
+                  image: "linear-gradient(135deg, #f43f5e 0%, #db2777 100%)",
+                  title: "Manyavar Sherwani & Kurta Couple Set — Royal Red",
+                  price: 5999,
+                  originalPrice: 8999,
+                  discountPercent: 33,
+                  platform: "Flipkart" as const,
+                },
+                {
+                  image: "linear-gradient(135deg, #c026d3 0%, #ec4899 100%)",
+                  title: "Kalki Fashion Family Wedding Coordinated Set",
+                  price: 12999,
+                  originalPrice: 18999,
+                  discountPercent: 32,
+                  platform: "Ajio" as const,
+                },
+                {
+                  image: "linear-gradient(135deg, #f9a8d4 0%, #f43f5e 100%)",
+                  title: "Hopscotch Kids Wedding Twinning Outfit — Rose",
+                  price: 1899,
+                  originalPrice: 2799,
+                  discountPercent: 32,
+                  platform: "Meesho" as const,
+                },
+              ] as {
+                image: string;
+                title: string;
+                price: number;
+                originalPrice: number;
+                discountPercent: number;
+                platform: "Amazon" | "Myntra" | "Flipkart" | "Ajio" | "Meesho";
+              }[]
+            ).map((item, idx) => (
+              <div key={item.title} data-ocid={`wedding.item.${idx + 1}`}>
+                <ProductCard {...item} ocidSuffix={`wedding_${idx + 1}`} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Kids Matching */}
+      <section
+        className="py-16 bg-sky-50 px-4"
+        data-ocid="kids_matching.section"
+      >
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-10">
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-black mb-2">
+              Kids Matching 👶
+            </h2>
+            <p className="text-gray-600 text-base">
+              Adorable coordinated outfits for little ones
+            </p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {(
+              [
+                {
+                  image: "linear-gradient(135deg, #38bdf8 0%, #3b82f6 100%)",
+                  title: "H&M Brother Sister Ethnic Combo — Sky Blue",
+                  price: 799,
+                  originalPrice: 1199,
+                  discountPercent: 33,
+                  platform: "Meesho" as const,
+                },
+                {
+                  image: "linear-gradient(135deg, #22d3ee 0%, #0ea5e9 100%)",
+                  title: "Babyhug Twins Festive Set — Cyan & Teal",
+                  price: 1299,
+                  originalPrice: 1899,
+                  discountPercent: 32,
+                  platform: "Flipkart" as const,
+                },
+                {
+                  image: "linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%)",
+                  title: "FirstCry Baby Matching Romper Duo — Powder Blue",
+                  price: 599,
+                  originalPrice: 899,
+                  discountPercent: 33,
+                  platform: "Amazon" as const,
+                },
+                {
+                  image: "linear-gradient(135deg, #6366f1 0%, #3b82f6 100%)",
+                  title: "Cute Walk Kids Festive Twinning Set — Indigo",
+                  price: 1899,
+                  originalPrice: 2699,
+                  discountPercent: 30,
+                  platform: "Ajio" as const,
+                },
+              ] as {
+                image: string;
+                title: string;
+                price: number;
+                originalPrice: number;
+                discountPercent: number;
+                platform: "Amazon" | "Myntra" | "Flipkart" | "Ajio" | "Meesho";
+              }[]
+            ).map((item, idx) => (
+              <div key={item.title} data-ocid={`kids_matching.item.${idx + 1}`}>
+                <ProductCard {...item} ocidSuffix={`kids_${idx + 1}`} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* KIDS Section */}
       <section
         className="py-16 max-w-7xl mx-auto px-4 sm:px-6"
         data-ocid="categories.section"
       >
-        <div className="text-center mb-10">
-          <p className="text-xs tracking-[0.3em] uppercase text-muted-foreground mb-2">
-            Collections
-          </p>
-          <h2 className="font-display text-3xl md:text-4xl font-bold">KIDS</h2>
-          <p className="text-muted-foreground text-sm mt-1 tracking-widest uppercase">
-            Little Twinners
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <KidsCard
             title="Boys"
             subtitle="Trendy styles for little gents"
@@ -633,16 +872,28 @@ export default function HomePage({ navigate }: HomePageProps) {
             ocid="categories.girls.card"
           />
           <KidsCard
-            title="Infants"
-            subtitle="Adorable outfits for your tiny ones"
-            bgClass="bg-purple-50"
-            accentClass="text-purple-800"
-            borderClass="border-purple-200"
-            hoverBgClass="hover:bg-purple-100"
+            title="Boy Baby"
+            subtitle="Sweet styles for baby boys"
+            bgClass="bg-sky-50"
+            accentClass="text-sky-800"
+            borderClass="border-sky-200"
+            hoverBgClass="hover:bg-sky-100"
             icon="👶"
-            infantMode
+            categories={BOY_BABY_CATEGORIES}
             onClick={() => navigate("find")}
-            ocid="categories.infants.card"
+            ocid="categories.boy_baby.card"
+          />
+          <KidsCard
+            title="Girl Baby"
+            subtitle="Adorable picks for baby girls"
+            bgClass="bg-rose-50"
+            accentClass="text-rose-800"
+            borderClass="border-rose-200"
+            hoverBgClass="hover:bg-rose-100"
+            icon="👶"
+            categories={GIRL_BABY_CATEGORIES}
+            onClick={() => navigate("find")}
+            ocid="categories.girl_baby.card"
           />
         </div>
       </section>
@@ -680,10 +931,10 @@ export default function HomePage({ navigate }: HomePageProps) {
       >
         <div className="text-center mb-10">
           <p className="text-xs tracking-[0.3em] uppercase text-muted-foreground mb-2">
-            Curated For You
+            COMPARING OUTFIT FOR YOU
           </p>
           <h2 className="font-display text-3xl md:text-4xl font-bold">
-            Find Your Perfect Match
+            Compare Prices Across 5 Platforms
           </h2>
         </div>
 

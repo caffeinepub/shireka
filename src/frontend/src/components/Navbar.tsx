@@ -13,6 +13,7 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import type { Page } from "../App";
+import { useWishlistContext } from "../contexts/WishlistContext";
 import { ADULT_SIZES, INFANT_MONTHS, KID_AGES } from "../data/products";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
 
@@ -90,13 +91,30 @@ const GIRLS_CATEGORIES = [
   "Jumpsuits & Dungarees",
 ];
 
-const INFANT_AGE_RANGES = [
-  "0-3 Months",
-  "3-6 Months",
-  "6-9 Months",
-  "9-12 Months",
-  "12-18 Months",
-  "18-24 Months",
+const BOY_BABY_CATEGORIES = [
+  "Onesies & Rompers",
+  "Sets & Suits",
+  "T-Shirts & Tops",
+  "Shorts & Pajamas",
+  "Bodysuits",
+  "Dungarees",
+  "Ethnic Wear",
+  "Party Wear",
+  "Sleepwear",
+  "Winterwear",
+];
+
+const GIRL_BABY_CATEGORIES = [
+  "Onesies & Rompers",
+  "Frocks & Dresses",
+  "Sets & Suits",
+  "Tops & Bodysuits",
+  "Leggings & Pajamas",
+  "Dungarees",
+  "Ethnic Wear",
+  "Party Wear",
+  "Sleepwear",
+  "Winterwear",
 ];
 
 interface SearchGroup {
@@ -171,11 +189,13 @@ export default function Navbar({ currentPage, navigate }: NavbarProps) {
   const [boysMobileOpen, setBoysMobileOpen] = useState(false);
   const [girlsOpen, setGirlsOpen] = useState(false);
   const [girlsMobileOpen, setGirlsMobileOpen] = useState(false);
-  const [infantsOpen, setInfantsOpen] = useState(false);
-  const [infantsMobileOpen, setInfantsMobileOpen] = useState(false);
-  const [infantGender, setInfantGender] = useState<"boy" | "girl" | null>(null);
+  const [boyBabyOpen, setBoyBabyOpen] = useState(false);
+  const [boyBabyMobileOpen, setBoyBabyMobileOpen] = useState(false);
+  const [girlBabyOpen, setGirlBabyOpen] = useState(false);
+  const [girlBabyMobileOpen, setGirlBabyMobileOpen] = useState(false);
   const { login, clear, identity, loginStatus } = useInternetIdentity();
   const isLoggedIn = loginStatus === "success" && !!identity;
+  const { count: wishlistCount } = useWishlistContext();
 
   const updateGroup = (
     key: GroupKey,
@@ -212,7 +232,8 @@ export default function Navbar({ currentPage, navigate }: NavbarProps) {
     setWomenOpen(false);
     setBoysOpen(false);
     setGirlsOpen(false);
-    setInfantsOpen(false);
+    setBoyBabyOpen(false);
+    setGirlBabyOpen(false);
   };
 
   return (
@@ -525,111 +546,117 @@ export default function Navbar({ currentPage, navigate }: NavbarProps) {
               </AnimatePresence>
             </div>
 
-            {/* INFANTS Dropdown */}
+            {/* BOY BABY Dropdown */}
             <div
               className="relative"
               onMouseEnter={() => {
                 closeAllDropdowns();
-                setInfantsOpen(true);
+                setBoyBabyOpen(true);
               }}
-              onMouseLeave={() => {
-                setInfantsOpen(false);
-                setInfantGender(null);
-              }}
+              onMouseLeave={() => setBoyBabyOpen(false)}
             >
               <button
                 type="button"
                 className={`flex items-center gap-1 text-xs font-semibold tracking-widest transition-colors hover:text-foreground/60 ${
-                  infantsOpen ? "text-foreground" : "text-foreground/80"
+                  boyBabyOpen ? "text-foreground" : "text-foreground/80"
                 }`}
-                data-ocid="nav.infants.button"
+                data-ocid="nav.boy_baby.button"
               >
-                INFANTS
+                BOY BABY
                 <ChevronDown
-                  className={`w-3 h-3 transition-transform duration-200 ${infantsOpen ? "rotate-180" : ""}`}
+                  className={`w-3 h-3 transition-transform duration-200 ${boyBabyOpen ? "rotate-180" : ""}`}
                 />
               </button>
               <AnimatePresence>
-                {infantsOpen && (
+                {boyBabyOpen && (
                   <motion.div
                     initial={{ opacity: 0, y: -8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
                     transition={{ duration: 0.18 }}
                     className="absolute left-0 top-full mt-2 w-52 bg-background border border-border rounded-xl shadow-xl overflow-hidden z-50"
-                    data-ocid="nav.infants.dropdown"
+                    data-ocid="nav.boy_baby.dropdown"
                   >
-                    <div className="px-4 pt-4 pb-3">
-                      <p className="text-[10px] font-extrabold tracking-widest uppercase text-foreground/50 mb-3">
-                        Select
+                    <div className="px-4 pt-4 pb-2">
+                      <p className="text-[10px] font-extrabold tracking-widest uppercase text-foreground/50 mb-2">
+                        Boy Baby
                       </p>
-                      <div className="flex gap-2 mb-3">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setInfantGender(
-                              infantGender === "boy" ? null : "boy",
-                            )
-                          }
-                          className={`flex-1 py-1.5 text-xs font-semibold rounded-md border transition-colors ${
-                            infantGender === "boy"
-                              ? "bg-blue-100 border-blue-400 text-blue-700"
-                              : "border-border hover:bg-muted text-foreground"
-                          }`}
-                          data-ocid="nav.infants.boy.button"
-                        >
-                          Baby Boy
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setInfantGender(
-                              infantGender === "girl" ? null : "girl",
-                            )
-                          }
-                          className={`flex-1 py-1.5 text-xs font-semibold rounded-md border transition-colors ${
-                            infantGender === "girl"
-                              ? "bg-pink-100 border-pink-400 text-pink-700"
-                              : "border-border hover:bg-muted text-foreground"
-                          }`}
-                          data-ocid="nav.infants.girl.button"
-                        >
-                          Baby Girl
-                        </button>
-                      </div>
-                      <AnimatePresence>
-                        {infantGender && (
-                          <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            exit={{ opacity: 0, height: 0 }}
-                            className="overflow-hidden"
+                      <div className="flex flex-col gap-0.5">
+                        {BOY_BABY_CATEGORIES.map((item, i) => (
+                          <button
+                            key={item}
+                            type="button"
+                            onClick={() => {
+                              setBoyBabyOpen(false);
+                              navigate("find");
+                            }}
+                            className="text-left text-sm font-medium py-1.5 px-2 rounded-md hover:bg-muted transition-colors text-foreground"
+                            data-ocid={`nav.boy_baby.item.${i + 1}`}
                           >
-                            <p className="text-[10px] font-extrabold tracking-widest uppercase text-foreground/50 mb-1">
-                              Age Range
-                            </p>
-                            <div className="flex flex-col gap-0.5">
-                              {INFANT_AGE_RANGES.map((range, i) => (
-                                <button
-                                  key={range}
-                                  type="button"
-                                  onClick={() => {
-                                    setInfantsOpen(false);
-                                    setInfantGender(null);
-                                    navigate("find");
-                                  }}
-                                  className="text-left text-sm font-medium py-1.5 px-2 rounded-md hover:bg-muted transition-colors text-foreground"
-                                  data-ocid={`nav.infants.range.item.${i + 1}`}
-                                >
-                                  {range}
-                                </button>
-                              ))}
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
+                            {item}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                    <div className="h-1 bg-gradient-to-r from-purple-400 via-violet-400 to-indigo-400" />
+                    <div className="h-1 bg-gradient-to-r from-blue-400 via-cyan-400 to-sky-500" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* GIRL BABY Dropdown */}
+            <div
+              className="relative"
+              onMouseEnter={() => {
+                closeAllDropdowns();
+                setGirlBabyOpen(true);
+              }}
+              onMouseLeave={() => setGirlBabyOpen(false)}
+            >
+              <button
+                type="button"
+                className={`flex items-center gap-1 text-xs font-semibold tracking-widest transition-colors hover:text-foreground/60 ${
+                  girlBabyOpen ? "text-foreground" : "text-foreground/80"
+                }`}
+                data-ocid="nav.girl_baby.button"
+              >
+                GIRL BABY
+                <ChevronDown
+                  className={`w-3 h-3 transition-transform duration-200 ${girlBabyOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+              <AnimatePresence>
+                {girlBabyOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.18 }}
+                    className="absolute left-0 top-full mt-2 w-52 bg-background border border-border rounded-xl shadow-xl overflow-hidden z-50"
+                    data-ocid="nav.girl_baby.dropdown"
+                  >
+                    <div className="px-4 pt-4 pb-2">
+                      <p className="text-[10px] font-extrabold tracking-widest uppercase text-foreground/50 mb-2">
+                        Girl Baby
+                      </p>
+                      <div className="flex flex-col gap-0.5">
+                        {GIRL_BABY_CATEGORIES.map((item, i) => (
+                          <button
+                            key={item}
+                            type="button"
+                            onClick={() => {
+                              setGirlBabyOpen(false);
+                              navigate("find");
+                            }}
+                            className="text-left text-sm font-medium py-1.5 px-2 rounded-md hover:bg-muted transition-colors text-foreground"
+                            data-ocid={`nav.girl_baby.item.${i + 1}`}
+                          >
+                            {item}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="h-1 bg-gradient-to-r from-pink-400 via-rose-300 to-fuchsia-400" />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -669,7 +696,16 @@ export default function Navbar({ currentPage, navigate }: NavbarProps) {
               onClick={() => navigate("wishlist")}
               data-ocid="nav.wishlist.link"
             >
-              <Heart className="w-4 h-4" />
+              <span className="relative">
+                <Heart
+                  className={`w-4 h-4 transition-colors ${wishlistCount > 0 ? "fill-red-500 text-red-500" : ""}`}
+                />
+                {wishlistCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center leading-none px-[2px]">
+                    {wishlistCount}
+                  </span>
+                )}
+              </span>
               <span className="hidden md:block text-[9px] font-medium mt-0.5">
                 Wishlist
               </span>
@@ -1036,20 +1072,20 @@ export default function Navbar({ currentPage, navigate }: NavbarProps) {
                 )}
               </AnimatePresence>
 
-              {/* INFANTS accordion */}
+              {/* BOY BABY accordion */}
               <button
                 type="button"
-                onClick={() => setInfantsMobileOpen((v) => !v)}
+                onClick={() => setBoyBabyMobileOpen((v) => !v)}
                 className="flex items-center justify-between text-left text-sm font-semibold tracking-widest py-2 hover:text-foreground/60 transition-colors"
-                data-ocid="nav.infants.mobile.button"
+                data-ocid="nav.boy_baby.mobile.button"
               >
-                INFANTS
+                BOY BABY
                 <ChevronDown
-                  className={`w-4 h-4 transition-transform duration-200 ${infantsMobileOpen ? "rotate-180" : ""}`}
+                  className={`w-4 h-4 transition-transform duration-200 ${boyBabyMobileOpen ? "rotate-180" : ""}`}
                 />
               </button>
               <AnimatePresence>
-                {infantsMobileOpen && (
+                {boyBabyMobileOpen && (
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: "auto", opacity: 1 }}
@@ -1057,40 +1093,60 @@ export default function Navbar({ currentPage, navigate }: NavbarProps) {
                     className="overflow-hidden"
                   >
                     <div className="pl-4 flex flex-col gap-0.5 pb-2">
-                      <p className="text-[10px] font-extrabold tracking-widest uppercase text-foreground/50 py-1">
-                        Baby Boy
-                      </p>
-                      {INFANT_AGE_RANGES.map((range, i) => (
+                      {BOY_BABY_CATEGORIES.map((item, i) => (
                         <button
-                          key={`boy-${range}`}
+                          key={item}
                           type="button"
                           onClick={() => {
                             navigate("find");
                             setMobileOpen(false);
-                            setInfantsMobileOpen(false);
+                            setBoyBabyMobileOpen(false);
                           }}
                           className="text-left text-sm py-1.5 px-2 rounded-md hover:bg-muted transition-colors text-foreground/80"
-                          data-ocid={`nav.infants.boy.mobile.item.${i + 1}`}
+                          data-ocid={`nav.boy_baby.mobile.item.${i + 1}`}
                         >
-                          {range}
+                          {item}
                         </button>
                       ))}
-                      <p className="text-[10px] font-extrabold tracking-widest uppercase text-foreground/50 py-1 mt-2">
-                        Baby Girl
-                      </p>
-                      {INFANT_AGE_RANGES.map((range, i) => (
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* GIRL BABY accordion */}
+              <button
+                type="button"
+                onClick={() => setGirlBabyMobileOpen((v) => !v)}
+                className="flex items-center justify-between text-left text-sm font-semibold tracking-widest py-2 hover:text-foreground/60 transition-colors"
+                data-ocid="nav.girl_baby.mobile.button"
+              >
+                GIRL BABY
+                <ChevronDown
+                  className={`w-4 h-4 transition-transform duration-200 ${girlBabyMobileOpen ? "rotate-180" : ""}`}
+                />
+              </button>
+              <AnimatePresence>
+                {girlBabyMobileOpen && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="pl-4 flex flex-col gap-0.5 pb-2">
+                      {GIRL_BABY_CATEGORIES.map((item, i) => (
                         <button
-                          key={`girl-${range}`}
+                          key={item}
                           type="button"
                           onClick={() => {
                             navigate("find");
                             setMobileOpen(false);
-                            setInfantsMobileOpen(false);
+                            setGirlBabyMobileOpen(false);
                           }}
                           className="text-left text-sm py-1.5 px-2 rounded-md hover:bg-muted transition-colors text-foreground/80"
-                          data-ocid={`nav.infants.girl.mobile.item.${i + 1}`}
+                          data-ocid={`nav.girl_baby.mobile.item.${i + 1}`}
                         >
-                          {range}
+                          {item}
                         </button>
                       ))}
                     </div>
