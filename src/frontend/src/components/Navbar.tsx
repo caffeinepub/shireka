@@ -343,7 +343,7 @@ export default function Navbar({ currentPage, navigate }: NavbarProps) {
                         ))}
                       </div>
                     </div>
-                    <div className="h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
+                    <div className="h-1 bg-gradient-to-r from-pink-300 via-pink-400 to-pink-500" />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -482,7 +482,7 @@ export default function Navbar({ currentPage, navigate }: NavbarProps) {
                         ))}
                       </div>
                     </div>
-                    <div className="h-1 bg-gradient-to-r from-blue-400 via-cyan-400 to-sky-500" />
+                    <div className="h-1 bg-gradient-to-r from-pink-300 via-pink-400 to-pink-500" />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -598,7 +598,7 @@ export default function Navbar({ currentPage, navigate }: NavbarProps) {
                         ))}
                       </div>
                     </div>
-                    <div className="h-1 bg-gradient-to-r from-blue-400 via-cyan-400 to-sky-500" />
+                    <div className="h-1 bg-gradient-to-r from-pink-300 via-pink-400 to-pink-500" />
                   </motion.div>
                 )}
               </AnimatePresence>

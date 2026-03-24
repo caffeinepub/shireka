@@ -14,8 +14,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Slider } from "@/components/ui/slider";
-import { ChevronLeft, Heart, Plus, Sparkles, Users, X } from "lucide-react";
+import {
+  ChevronLeft,
+  Heart,
+  Plus,
+  SlidersHorizontal,
+  Sparkles,
+  Users,
+  X,
+} from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import type { FindMode, MemberConfig, OutfitFinderState, Page } from "../App";
@@ -214,7 +228,7 @@ function ColorPicker({
 }: { value: string; onChange: (v: string) => void }) {
   return (
     <div>
-      <p className="text-xs font-semibold text-gray-600 mb-1">Color</p>
+      <p className="text-sm font-semibold text-gray-600 mb-1">Color</p>
       <div className="flex flex-wrap gap-1.5">
         {COLORS.map((c) => {
           const selected = value === c.name;
@@ -224,7 +238,7 @@ function ColorPicker({
               type="button"
               title={c.name}
               onClick={() => onChange(c.name)}
-              className={`w-6 h-6 rounded-full border-2 transition-all ${
+              className={`w-7 h-7 rounded-full border-2 transition-all ${
                 selected
                   ? "border-blue-600 scale-125 shadow-md"
                   : "border-gray-200 hover:border-gray-400"
@@ -240,7 +254,7 @@ function ColorPicker({
         })}
       </div>
       {value && (
-        <p className="text-xs text-blue-600 font-medium mt-1">
+        <p className="text-sm text-blue-600 font-medium mt-1">
           Selected: {value}
         </p>
       )}
@@ -288,11 +302,11 @@ function MemberCardUI({
       <div className="flex items-center gap-3 mb-4">
         <span className="text-3xl">{mt.emoji}</span>
         <div>
-          <p className="font-bold text-black text-base">{mt.label}</p>
-          <p className="text-xs text-gray-500 capitalize">{mt.group}</p>
+          <p className="font-bold text-black text-lg">{mt.label}</p>
+          <p className="text-sm text-gray-500 capitalize">{mt.group}</p>
         </div>
         {card.outfit && (
-          <Badge variant="secondary" className="ml-auto text-xs">
+          <Badge variant="secondary" className="ml-auto text-sm">
             {card.outfit}
           </Badge>
         )}
@@ -300,20 +314,20 @@ function MemberCardUI({
 
       {/* Outfit */}
       <div className="mb-3">
-        <p className="text-xs font-semibold text-gray-600 mb-1">Outfit Type</p>
+        <p className="text-sm font-semibold text-gray-600 mb-1">Outfit Type</p>
         <Select
           value={card.outfit}
           onValueChange={(v) => onChange({ outfit: v })}
         >
           <SelectTrigger
-            className="w-full text-black text-sm"
+            className="w-full text-black text-base h-11"
             data-ocid={`member.select.${index + 1}`}
           >
             <SelectValue placeholder="Select outfit..." />
           </SelectTrigger>
           <SelectContent>
             {outfits.map((o) => (
-              <SelectItem key={o} value={o}>
+              <SelectItem key={o} value={o} className="text-base">
                 {o}
               </SelectItem>
             ))}
@@ -323,17 +337,17 @@ function MemberCardUI({
 
       {/* Size */}
       <div className="mb-4">
-        <p className="text-xs font-semibold text-gray-600 mb-1">Size</p>
-        <div className="flex flex-wrap gap-1.5">
+        <p className="text-sm font-semibold text-gray-600 mb-1">Size</p>
+        <div className="flex flex-wrap gap-2">
           {sizes.map((sz) => (
             <button
               key={sz}
               type="button"
               onClick={() => onChange({ size: sz })}
               data-ocid={`member.toggle.${index + 1}`}
-              className={`px-2.5 py-1 rounded-md border text-xs font-semibold transition-all ${
+              className={`px-3 py-1.5 rounded-md border text-sm font-semibold transition-all ${
                 card.size === sz
-                  ? "border-blue-600 bg-blue-600 text-white"
+                  ? "border-primary bg-primary text-primary-foreground"
                   : "border-gray-300 text-black hover:border-blue-400"
               }`}
             >
@@ -352,7 +366,7 @@ function MemberCardUI({
   );
 }
 
-// ─────────────────── MAIN FIND PAGE ───────────────────
+// ─────────────────── FILTER PANEL CONTENT ───────────────────
 const FILTER_BRANDS = [
   "Fabindia",
   "W",
@@ -365,6 +379,97 @@ const FILTER_BRANDS = [
   "Rangmanch",
 ];
 
+interface FilterPanelProps {
+  budget: [number, number];
+  setBudget: (v: [number, number]) => void;
+  selectedBrands: Set<string>;
+  setSelectedBrands: (fn: (prev: Set<string>) => Set<string>) => void;
+}
+
+function FilterPanelContent({
+  budget,
+  setBudget,
+  selectedBrands,
+  setSelectedBrands,
+}: FilterPanelProps) {
+  return (
+    <div className="space-y-5">
+      {/* Budget Slider */}
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-base font-semibold text-white/90">Budget</p>
+          <span className="text-sm font-bold text-yellow-300">
+            ₹{budget[0].toLocaleString()} – ₹{budget[1].toLocaleString()}
+          </span>
+        </div>
+        <Slider
+          min={500}
+          max={10000}
+          step={100}
+          value={budget}
+          onValueChange={(v) => setBudget(v as [number, number])}
+          className="[&_[role=slider]]:bg-yellow-400 [&_[role=slider]]:border-yellow-500"
+          data-ocid="filters.budget.input"
+        />
+        <div className="flex justify-between text-xs text-white/50 mt-1">
+          <span>₹500</span>
+          <span>₹10,000</span>
+        </div>
+      </div>
+
+      {/* Occasion */}
+      <div>
+        <p className="text-base font-semibold text-white/90 mb-2">Occasion</p>
+        <div className="flex flex-wrap gap-2">
+          {["Wedding", "Casual", "Party"].map((occ) => (
+            <button
+              key={occ}
+              type="button"
+              className="text-sm font-bold px-4 py-2 rounded-full border border-white/30 text-white/80 hover:bg-white/20 transition-colors"
+              data-ocid="filters.occasion.toggle"
+            >
+              {occ}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Brand */}
+      <div>
+        <p className="text-base font-semibold text-white/90 mb-2">Brand</p>
+        <div className="flex flex-wrap gap-2">
+          {FILTER_BRANDS.map((brand) => {
+            const selected = selectedBrands.has(brand);
+            return (
+              <button
+                key={brand}
+                type="button"
+                onClick={() => {
+                  setSelectedBrands((prev) => {
+                    const next = new Set(prev);
+                    if (next.has(brand)) next.delete(brand);
+                    else next.add(brand);
+                    return next;
+                  });
+                }}
+                className={`text-sm font-semibold px-3 py-1.5 rounded-full border transition-colors ${
+                  selected
+                    ? "bg-yellow-400 text-black border-yellow-400"
+                    : "border-white/30 text-white/80 hover:bg-white/20"
+                }`}
+                data-ocid="filters.brand.toggle"
+              >
+                {brand}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────── MAIN FIND PAGE ───────────────────
 export default function FindPage({
   navigate,
   onSearch,
@@ -376,7 +481,7 @@ export default function FindPage({
   const [members, setMembers] = useState<MemberCard[]>([]);
   const [budget, setBudget] = useState<[number, number]>([500, 5000]);
   const [selectedBrands, setSelectedBrands] = useState<Set<string>>(new Set());
-
+  const [filterSheetOpen, setFilterSheetOpen] = useState(false);
   const switchMode = (m: "couple" | "family") => {
     setMode(m);
     if (m === "couple") {
@@ -426,8 +531,15 @@ export default function FindPage({
 
   const availableTypes = mode === "couple" ? COUPLE_TYPES : FAMILY_TYPES;
 
+  const filterPanelProps: FilterPanelProps = {
+    budget,
+    setBudget,
+    selectedBrands,
+    setSelectedBrands,
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700 py-10 px-4">
+    <div className="min-h-screen bg-background py-10 px-4 pb-24">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <motion.div
@@ -435,11 +547,11 @@ export default function FindPage({
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-1">
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-1">
             <Sparkles className="inline-block w-7 h-7 mr-2 text-yellow-400" />
             Find Twinning Outfits
           </h1>
-          <p className="text-white/80 text-base">
+          <p className="text-muted-foreground text-base md:text-lg">
             Pick members, select outfits, compare prices across 5 platforms
           </p>
         </motion.div>
@@ -484,10 +596,10 @@ export default function FindPage({
             animate={{ opacity: 1 }}
             className="bg-white/10 rounded-2xl p-10 text-center text-white"
           >
-            <p className="text-lg font-semibold mb-2">
+            <p className="text-xl font-semibold mb-2">
               Choose a twinning mode above
             </p>
-            <p className="text-white/70">
+            <p className="text-white/70 text-base">
               Start with Couple Twinning or Family Twinning to add members and
               find matching outfits.
             </p>
@@ -539,7 +651,7 @@ export default function FindPage({
                       <DropdownMenuItem
                         key={t.id}
                         onClick={() => addMember(t.id)}
-                        className="cursor-pointer"
+                        className="cursor-pointer text-base py-2"
                         data-ocid={`member.${t.id}.button`}
                       >
                         <span className="mr-2 text-xl">{t.emoji}</span>
@@ -551,93 +663,15 @@ export default function FindPage({
               </motion.div>
             )}
 
-            {/* Budget & Brand Filters */}
+            {/* Filters: Desktop inline */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="bg-white/10 rounded-2xl p-5 mb-4 border border-white/20"
+              className="hidden md:block bg-white/10 rounded-2xl p-5 mb-4 border border-white/20"
               data-ocid="filters.panel"
             >
-              <h3 className="font-bold text-white text-base mb-4">
-                🎯 Filters
-              </h3>
-
-              {/* Budget Slider */}
-              <div className="mb-5">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm font-semibold text-white/90">Budget</p>
-                  <span className="text-xs font-bold text-yellow-300">
-                    ₹{budget[0].toLocaleString()} – ₹
-                    {budget[1].toLocaleString()}
-                  </span>
-                </div>
-                <Slider
-                  min={500}
-                  max={10000}
-                  step={100}
-                  value={budget}
-                  onValueChange={(v) => setBudget(v as [number, number])}
-                  className="[&_[role=slider]]:bg-yellow-400 [&_[role=slider]]:border-yellow-500"
-                  data-ocid="filters.budget.input"
-                />
-                <div className="flex justify-between text-[10px] text-white/50 mt-1">
-                  <span>₹500</span>
-                  <span>₹10,000</span>
-                </div>
-              </div>
-
-              {/* Occasion */}
-              <div className="mb-5">
-                <p className="text-sm font-semibold text-white/90 mb-2">
-                  Occasion
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {["Wedding", "Casual", "Party"].map((occ) => (
-                    <button
-                      key={occ}
-                      type="button"
-                      className="text-xs font-bold px-3 py-1.5 rounded-full border border-white/30 text-white/80 hover:bg-white/20 transition-colors"
-                      data-ocid="filters.occasion.toggle"
-                    >
-                      {occ}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Brand */}
-              <div>
-                <p className="text-sm font-semibold text-white/90 mb-2">
-                  Brand
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {FILTER_BRANDS.map((brand) => {
-                    const selected = selectedBrands.has(brand);
-                    return (
-                      <button
-                        key={brand}
-                        type="button"
-                        onClick={() => {
-                          setSelectedBrands((prev) => {
-                            const next = new Set(prev);
-                            if (next.has(brand)) next.delete(brand);
-                            else next.add(brand);
-                            return next;
-                          });
-                        }}
-                        className={`text-xs font-semibold px-2.5 py-1 rounded-full border transition-colors ${
-                          selected
-                            ? "bg-yellow-400 text-black border-yellow-400"
-                            : "border-white/30 text-white/80 hover:bg-white/20"
-                        }`}
-                        data-ocid="filters.brand.toggle"
-                      >
-                        {brand}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+              <h3 className="font-bold text-white text-lg mb-4">🎯 Filters</h3>
+              <FilterPanelContent {...filterPanelProps} />
             </motion.div>
 
             {/* Summary & Find */}
@@ -648,7 +682,7 @@ export default function FindPage({
                 className="bg-white/10 rounded-2xl p-5 mb-6 border border-white/20"
                 data-ocid="summary.card"
               >
-                <h3 className="font-bold text-white text-base mb-3">
+                <h3 className="font-bold text-white text-lg mb-3">
                   📋 Your Selection Summary
                 </h3>
                 <div className="space-y-1.5">
@@ -657,7 +691,7 @@ export default function FindPage({
                     return (
                       <div
                         key={m.uid}
-                        className="flex items-center gap-2 text-sm text-white/90"
+                        className="flex items-center gap-2 text-base text-white/90"
                       >
                         <span>{mt.emoji}</span>
                         <span className="font-semibold">{mt.label}:</span>
@@ -684,13 +718,13 @@ export default function FindPage({
                         {m.size && (
                           <Badge
                             variant="outline"
-                            className="text-white border-white/40 text-xs py-0"
+                            className="text-white border-white/40 text-sm py-0"
                           >
                             {m.size}
                           </Badge>
                         )}
                         {idx === 0 && !m.outfit && !m.color && !m.size && (
-                          <span className="text-yellow-300 text-xs ml-auto">
+                          <span className="text-yellow-300 text-sm ml-auto">
                             Fill details ↑
                           </span>
                         )}
@@ -699,7 +733,7 @@ export default function FindPage({
                   })}
                 </div>
                 {!canFind && (
-                  <p className="text-yellow-300 text-xs mt-3 font-medium">
+                  <p className="text-yellow-300 text-sm mt-3 font-medium">
                     ⚠ Please fill outfit, color, and size for all members to
                     continue.
                   </p>
@@ -707,11 +741,11 @@ export default function FindPage({
               </motion.div>
             )}
 
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <Button
                 variant="outline"
                 onClick={() => navigate("home")}
-                className="bg-white/10 text-white border-white/30 hover:bg-white/20 hover:text-white"
+                className="w-full sm:w-auto bg-white/10 text-white border-white/30 hover:bg-white/20 hover:text-white py-5 text-base"
                 data-ocid="find.back_button"
               >
                 <ChevronLeft className="w-4 h-4 mr-1" />
@@ -720,7 +754,7 @@ export default function FindPage({
               <Button
                 onClick={handleFindResult}
                 disabled={!canFind}
-                className="flex-1 font-extrabold text-xl bg-yellow-400 text-black hover:bg-yellow-300 border-0 shadow-[0_0_32px_rgba(250,204,21,0.8)] disabled:opacity-40 disabled:shadow-none py-6 tracking-wider"
+                className="flex-1 font-extrabold text-xl bg-yellow-400 text-black hover:bg-yellow-300 border-0 shadow-lg rounded-full disabled:opacity-40 disabled:shadow-none py-6 tracking-wider w-full sm:w-auto"
                 data-ocid="find.submit_button"
               >
                 ✨ FIND RESULT
@@ -729,6 +763,54 @@ export default function FindPage({
           </>
         )}
       </div>
+
+      {/* Mobile sticky filter button */}
+      {mode && (
+        <div className="fixed bottom-6 left-0 right-0 flex justify-center px-4 md:hidden z-50">
+          <button
+            type="button"
+            onClick={() => setFilterSheetOpen(true)}
+            className="flex items-center gap-2 bg-white text-blue-700 font-bold px-6 py-3.5 rounded-full shadow-2xl text-base border-2 border-blue-200"
+            data-ocid="filters.open_modal_button"
+          >
+            <SlidersHorizontal className="w-5 h-5" />
+            Filters & Budget
+            {selectedBrands.size > 0 && (
+              <span className="bg-primary text-primary-foreground rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">
+                {selectedBrands.size}
+              </span>
+            )}
+          </button>
+        </div>
+      )}
+
+      {/* Mobile Filters Sheet */}
+      <Sheet open={filterSheetOpen} onOpenChange={setFilterSheetOpen}>
+        <SheetContent
+          side="bottom"
+          className="rounded-t-3xl max-h-[85vh] overflow-y-auto bg-background border-border"
+          data-ocid="filters.sheet"
+        >
+          <SheetHeader className="mb-4">
+            <SheetTitle className="text-foreground text-xl font-bold text-left">
+              🎯 Filters & Budget
+            </SheetTitle>
+          </SheetHeader>
+          <ScrollArea className="h-full">
+            <FilterPanelContent {...filterPanelProps} />
+            <div className="h-8" />
+          </ScrollArea>
+          <div className="pt-4 pb-2">
+            <Button
+              className="w-full bg-yellow-400 text-black font-bold text-lg py-6 rounded-full"
+              onClick={() => setFilterSheetOpen(false)}
+              data-ocid="filters.close_button"
+            >
+              Apply Filters
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

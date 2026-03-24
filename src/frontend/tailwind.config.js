@@ -38,15 +38,21 @@ export default {
         border: "oklch(var(--border) / <alpha-value>)",
         input: "oklch(var(--input) / <alpha-value>)",
         ring: "oklch(var(--ring) / <alpha-value>)",
+        "pink-pastel": "oklch(0.88 0.06 0)",
+        "pink-deep": "oklch(0.65 0.18 0)",
       },
       fontFamily: {
         display: ["Playfair Display", "Georgia", "serif"],
-        sans: ["Inter", "system-ui", "sans-serif"],
+        sans: ["Plus Jakarta Sans", "system-ui", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      boxShadow: {
+        card: "0 1px 3px 0 oklch(0 0 0 / 0.08), 0 1px 2px -1px oklch(0 0 0 / 0.06)",
+        "card-hover": "0 4px 12px 0 oklch(0 0 0 / 0.10), 0 2px 4px -1px oklch(0 0 0 / 0.06)",
       },
     },
   },

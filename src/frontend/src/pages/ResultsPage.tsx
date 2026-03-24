@@ -1,6 +1,13 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Slider } from "@/components/ui/slider";
 import {
   Table,
@@ -28,7 +35,11 @@ import { AnimatePresence, motion } from "motion/react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import type { MemberConfig, OutfitFinderState, Page } from "../App";
+import TwinningLooksSuggestions, {
+  type MemberType,
+} from "../components/TwinningLooksSuggestions";
 import { useWishlistContext } from "../contexts/WishlistContext";
+import { useIsMobile } from "../hooks/use-mobile";
 
 interface ResultsPageProps {
   navigate: (p: Page) => void;
@@ -756,6 +767,8 @@ function SortFilterBar({
   filteredCount: number;
 }) {
   const [panelOpen, setPanelOpen] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   const activeFilterCount =
     filters.selectedCategories.size +
@@ -786,14 +799,14 @@ function SortFilterBar({
       <div className="flex items-center gap-2 flex-wrap">
         {/* Sort By */}
         <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5">
-          <SlidersHorizontal className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
-          <span className="text-xs font-semibold text-gray-600 whitespace-nowrap">
+          <SlidersHorizontal className="w-3.5 h-3.5 text-foreground flex-shrink-0" />
+          <span className="text-sm font-semibold text-gray-600 whitespace-nowrap">
             Sort:
           </span>
           <select
             value={filters.sortBy}
             onChange={(e) => onChange({ ...filters, sortBy: e.target.value })}
-            className="text-xs font-bold text-black bg-transparent outline-none cursor-pointer"
+            className="text-sm font-bold text-black bg-transparent outline-none cursor-pointer"
             data-ocid="sort_filter.select"
           >
             {SORT_OPTIONS.map((opt) => (
@@ -807,10 +820,12 @@ function SortFilterBar({
         {/* Filter toggle button */}
         <button
           type="button"
-          onClick={() => setPanelOpen((o) => !o)}
-          className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold border transition-colors ${
-            panelOpen || activeFilterCount > 0
-              ? "bg-blue-600 text-white border-blue-600"
+          onClick={() =>
+            isMobile ? setSheetOpen(true) : setPanelOpen((o) => !o)
+          }
+          className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-bold border transition-colors ${
+            panelOpen || sheetOpen || activeFilterCount > 0
+              ? "bg-primary text-primary-foreground border-blue-600"
               : "bg-gray-50 text-gray-700 border-gray-200 hover:border-blue-400"
           }`}
           data-ocid="sort_filter.toggle"
@@ -848,7 +863,7 @@ function SortFilterBar({
           {Array.from(filters.selectedCategories).map((cat) => (
             <span
               key={cat}
-              className="flex items-center gap-1 bg-blue-100 text-blue-800 text-[11px] font-semibold px-2 py-0.5 rounded-full"
+              className="flex items-center gap-1 bg-pink-100 text-foreground text-[11px] font-semibold px-2 py-0.5 rounded-full"
             >
               {cat}
               <button
@@ -894,9 +909,9 @@ function SortFilterBar({
         </div>
       )}
 
-      {/* Collapsible filter panel */}
+      {/* Collapsible filter panel - desktop only */}
       <AnimatePresence>
-        {panelOpen && (
+        {!isMobile && panelOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
@@ -918,7 +933,7 @@ function SortFilterBar({
                       onClick={() => toggleCategory(cat)}
                       className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border transition-colors ${
                         filters.selectedCategories.has(cat)
-                          ? "bg-blue-600 text-white border-blue-600"
+                          ? "bg-primary text-primary-foreground border-blue-600"
                           : "bg-white text-gray-700 border-gray-300 hover:border-blue-400"
                       }`}
                       data-ocid="sort_filter.category_toggle"
@@ -988,6 +1003,144 @@ function SortFilterBar({
           </motion.div>
         )}
       </AnimatePresence>
+      {/* Mobile filter sheet */}
+      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+        <SheetContent
+          side="bottom"
+          className="rounded-t-3xl max-h-[85vh] flex flex-col"
+          data-ocid="sort_filter.sheet"
+        >
+          <SheetHeader>
+            <SheetTitle className="text-lg font-bold text-left">
+              Sort & Filter
+            </SheetTitle>
+          </SheetHeader>
+          <ScrollArea className="flex-1 overflow-y-auto py-4">
+            <div className="space-y-4">
+              {/* Sort */}
+              <div>
+                <p className="text-sm font-bold text-gray-700 mb-2">Sort By</p>
+                <div className="flex flex-wrap gap-2">
+                  {SORT_OPTIONS.map((opt) => (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={() => onChange({ ...filters, sortBy: opt })}
+                      className={`text-sm font-semibold px-3 py-1.5 rounded-full border transition-colors ${
+                        filters.sortBy === opt
+                          ? "bg-primary text-primary-foreground border-blue-600"
+                          : "bg-white text-gray-700 border-gray-300 hover:border-blue-400"
+                      }`}
+                    >
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* Style Category */}
+              <div>
+                <p className="text-sm font-bold text-gray-700 mb-2">
+                  Style Category
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {Object.keys(STYLE_CATEGORIES).map((cat) => (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => toggleCategory(cat)}
+                      className={`text-sm font-semibold px-3 py-1.5 rounded-full border transition-colors ${
+                        filters.selectedCategories.has(cat)
+                          ? "bg-primary text-primary-foreground border-blue-600"
+                          : "bg-white text-gray-700 border-gray-300 hover:border-blue-400"
+                      }`}
+                      data-ocid="sort_filter.category_toggle"
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* Platform */}
+              <div>
+                <p className="text-sm font-bold text-gray-700 mb-2">Platform</p>
+                <div className="flex flex-wrap gap-2">
+                  {PLATFORMS.map((plat) => (
+                    <button
+                      key={plat.id}
+                      type="button"
+                      onClick={() => togglePlatform(plat.id)}
+                      className={`text-sm font-bold px-4 py-1.5 rounded-full border-2 transition-all ${
+                        filters.selectedPlatforms.has(plat.id)
+                          ? "shadow-md scale-105"
+                          : "opacity-70"
+                      }`}
+                      style={{
+                        background: filters.selectedPlatforms.has(plat.id)
+                          ? plat.color
+                          : plat.bg,
+                        color: filters.selectedPlatforms.has(plat.id)
+                          ? "#fff"
+                          : plat.color,
+                        borderColor: plat.color,
+                      }}
+                      data-ocid="sort_filter.platform_toggle"
+                    >
+                      {plat.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* Max price */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-bold text-gray-700">Max Price</p>
+                  <span className="text-sm font-extrabold text-blue-700">
+                    ₹{filters.maxPrice.toLocaleString("en-IN")}
+                  </span>
+                </div>
+                <Slider
+                  min={200}
+                  max={5000}
+                  step={100}
+                  value={[filters.maxPrice]}
+                  onValueChange={([val]) =>
+                    onChange({ ...filters, maxPrice: val })
+                  }
+                  className="w-full"
+                  data-ocid="sort_filter.price_slider"
+                />
+                <div className="flex justify-between text-xs text-gray-400 mt-1">
+                  <span>₹200</span>
+                  <span>₹5,000</span>
+                </div>
+              </div>
+            </div>
+          </ScrollArea>
+          <div className="pt-3 pb-2 flex gap-2">
+            {activeFilterCount > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  clearAll();
+                  setSheetOpen(false);
+                }}
+                className="flex-1 py-3 rounded-xl border border-gray-300 text-sm font-semibold text-gray-700"
+                data-ocid="sort_filter.clear_button"
+              >
+                Clear All
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => setSheetOpen(false)}
+              className="flex-1 py-3 rounded-xl bg-primary text-primary-foreground font-bold text-sm"
+              data-ocid="sort_filter.close_button"
+            >
+              Apply Filters
+            </button>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
@@ -1094,6 +1247,8 @@ function QuickViewModal({
                   alt={variant.fullName}
                   className="w-full h-full object-cover"
                   onError={() => setImgError(true)}
+                  loading="lazy"
+                  decoding="async"
                 />
               ) : (
                 <div
@@ -1189,7 +1344,7 @@ function QuickViewModal({
                       href={row.buyUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 text-[11px] font-bold flex items-center gap-0.5 flex-shrink-0"
+                      className="text-foreground hover:text-foreground text-[11px] font-bold flex items-center gap-0.5 flex-shrink-0"
                       data-ocid="quick_view.buy_link"
                     >
                       Buy <ExternalLink className="w-2.5 h-2.5" />
@@ -1220,7 +1375,7 @@ function QuickViewModal({
                   href={cheapestPlatformObj.buyUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-colors text-sm"
+                  className="flex items-center justify-center gap-2 w-full bg-blue-600 hover:bg-gray-800 text-white font-bold py-3 rounded-xl transition-colors text-sm"
                   data-ocid="quick_view.buy_now_button"
                 >
                   Buy Now on {cheapestPlatformObj.label}
@@ -1268,7 +1423,7 @@ function OutfitVariantCard({
       onClick={onSelect}
       className={`rounded-xl overflow-hidden border-2 transition-all flex flex-col text-left flex-shrink-0 ${
         isSelected
-          ? "border-blue-500 shadow-lg shadow-blue-200 ring-2 ring-blue-300"
+          ? "border-pink-400 shadow-lg shadow-pink-200 ring-2 ring-pink-300"
           : "border-gray-200 hover:border-blue-300 hover:shadow-md"
       }`}
       style={{ width: 160 }}
@@ -1289,6 +1444,7 @@ function OutfitVariantCard({
             className="w-full h-full object-cover"
             onError={() => setImgError(true)}
             loading="lazy"
+            decoding="async"
           />
         ) : (
           /* Fallback: color bg + clothing emoji */
@@ -1318,7 +1474,7 @@ function OutfitVariantCard({
                 : cheapPlat.id === "myntra"
                   ? "bg-pink-500"
                   : cheapPlat.id === "flipkart"
-                    ? "bg-blue-600"
+                    ? "bg-primary"
                     : cheapPlat.id === "ajio"
                       ? "bg-red-600"
                       : "bg-purple-600"
@@ -1330,7 +1486,7 @@ function OutfitVariantCard({
 
         {/* SELECTED badge — top left */}
         {isSelected && (
-          <span className="absolute top-2 left-2 bg-blue-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-md z-10">
+          <span className="absolute top-2 left-2 bg-pink-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-md z-10">
             SELECTED
           </span>
         )}
@@ -1348,11 +1504,11 @@ function OutfitVariantCard({
               e.stopPropagation();
               onQuickView();
             }}
-            className="absolute bottom-2 right-2 z-20 w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-blue-50 transition-colors"
+            className="absolute bottom-2 right-2 z-20 w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-pink-50 transition-colors"
             aria-label="Quick view"
             data-ocid="outfit_variant.open_modal_button"
           >
-            <ZoomIn className="w-3.5 h-3.5 text-blue-600" />
+            <ZoomIn className="w-3.5 h-3.5 text-foreground" />
           </button>
         )}
       </div>
@@ -1365,7 +1521,7 @@ function OutfitVariantCard({
             <Sparkles className="w-2.5 h-2.5" /> Recommended for You
           </span>
         )}
-        <p className="text-[10px] font-bold text-blue-600 leading-tight truncate">
+        <p className="text-[10px] font-bold text-foreground leading-tight truncate">
           {variant.brand}
         </p>
         <p className="text-[11px] font-semibold text-gray-800 leading-tight line-clamp-2">
@@ -1439,9 +1595,11 @@ function MemberSection({ member }: { member: MemberConfig }) {
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTER);
   const [quickViewVariant, setQuickViewVariant] =
     useState<OutfitVariant | null>(null);
+  const [visibleCount, setVisibleCount] = useState(20);
   const emoji = MEMBER_EMOJIS[member.id] ?? "🧑";
 
   const filteredVariants = applyFiltersAndSort(allVariants, filters);
+  const visibleVariants = filteredVariants.slice(0, visibleCount);
 
   // Clamp selected index when filters change
   const clampedSelectedIdx =
@@ -1480,11 +1638,11 @@ function MemberSection({ member }: { member: MemberConfig }) {
       data-ocid="member_result.section"
     >
       {/* Section header */}
-      <div className="px-5 py-4 bg-gradient-to-r from-blue-600 to-blue-400">
+      <div className="px-5 py-4 bg-gradient-to-r from-gray-900 to-gray-700">
         <h2 className="text-lg font-extrabold text-white">
           {emoji} For {member.label} — {member.garment} ({member.size})
         </h2>
-        <p className="text-blue-100 text-sm">
+        <p className="text-pink-100 text-sm">
           {allVariants.length} outfit styles in {member.color} — Compare prices
           across platforms
         </p>
@@ -1496,6 +1654,7 @@ function MemberSection({ member }: { member: MemberConfig }) {
         onChange={(f) => {
           setFilters(f);
           setSelectedVariantIdx(0);
+          setVisibleCount(20);
         }}
         totalCount={allVariants.length}
         filteredCount={filteredVariants.length}
@@ -1518,7 +1677,7 @@ function MemberSection({ member }: { member: MemberConfig }) {
             <button
               type="button"
               onClick={() => setFilters(DEFAULT_FILTER)}
-              className="flex items-center gap-1.5 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-full transition-colors"
+              className="flex items-center gap-1.5 text-xs font-bold text-foreground bg-pink-50 hover:bg-pink-100 px-4 py-2 rounded-full transition-colors"
               data-ocid="outfit_scroll.clear_filters_button"
             >
               <X className="w-3 h-3" /> Clear Filters
@@ -1544,7 +1703,7 @@ function MemberSection({ member }: { member: MemberConfig }) {
             className="flex gap-3 overflow-x-auto px-8 py-2"
             style={{ scrollbarWidth: "none" }}
           >
-            {filteredVariants.map((variant, idx) => (
+            {visibleVariants.map((variant, idx) => (
               <OutfitVariantCard
                 key={variant.variantIndex}
                 variant={variant}
@@ -1553,6 +1712,22 @@ function MemberSection({ member }: { member: MemberConfig }) {
                 onQuickView={() => setQuickViewVariant(variant)}
               />
             ))}
+            {visibleCount < filteredVariants.length && (
+              <div className="flex-shrink-0 flex items-center px-4">
+                <button
+                  type="button"
+                  onClick={() => setVisibleCount((v) => v + 20)}
+                  className="bg-primary text-primary-foreground text-xs font-bold px-4 py-3 rounded-full whitespace-nowrap hover:bg-gray-800 transition-colors"
+                  data-ocid="outfit_scroll.load_more_button"
+                >
+                  Load 20 More
+                  <br />
+                  <span className="font-normal opacity-75">
+                    ({filteredVariants.length - visibleCount} left)
+                  </span>
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Right arrow */}
@@ -1573,7 +1748,7 @@ function MemberSection({ member }: { member: MemberConfig }) {
         <div className="px-5 pb-1">
           <p className="text-xs text-gray-500">
             Showing prices for:{" "}
-            <span className="font-bold text-blue-600">
+            <span className="font-bold text-foreground">
               {selectedVariant.fullName}
             </span>
           </p>
@@ -1584,20 +1759,22 @@ function MemberSection({ member }: { member: MemberConfig }) {
       {filteredVariants.length > 0 && (
         <div className="px-4 pb-5 pt-2" data-ocid="price_comparison.table">
           {/* Same product badge */}
-          <div className="flex items-center gap-3 mb-3 bg-blue-50 border border-blue-200 rounded-xl p-3">
+          <div className="flex items-center gap-3 mb-3 bg-pink-50 border border-pink-200 rounded-xl p-3">
             <img
               src={selectedVariant.productImage}
               alt={selectedVariant.fullName}
-              className="w-14 h-14 rounded-lg object-cover border-2 border-blue-200 flex-shrink-0"
+              className="w-14 h-14 rounded-lg object-cover border-2 border-pink-200 flex-shrink-0"
+              loading="lazy"
+              decoding="async"
             />
             <div className="min-w-0">
-              <span className="inline-flex items-center gap-1 bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full mb-1">
+              <span className="inline-flex items-center gap-1 bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-full mb-1">
                 ✅ Same Product
               </span>
-              <p className="text-xs font-bold text-blue-800 leading-tight truncate">
+              <p className="text-xs font-bold text-foreground leading-tight truncate">
                 {selectedVariant.brand}
               </p>
-              <p className="text-[11px] text-blue-600 leading-tight truncate">
+              <p className="text-[11px] text-foreground leading-tight truncate">
                 {selectedVariant.color} · {selectedVariant.styleName}
               </p>
             </div>
@@ -1804,11 +1981,11 @@ export default function ResultsPage({
               </Badge>
             ))}
           </div>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-3">
             <Button
               variant="outline"
               onClick={() => navigate("find")}
-              className="flex items-center gap-2 text-black border-gray-300"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 text-black border-gray-300 py-5 text-base"
               data-ocid="results.modify_button"
             >
               <ArrowLeft className="w-4 h-4" /> Modify Search
@@ -1817,7 +1994,7 @@ export default function ResultsPage({
               variant="outline"
               onClick={handleWishlist}
               disabled={wishlistSaved}
-              className="flex items-center gap-2 text-black border-gray-300"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 text-black border-gray-300 py-5 text-base"
               data-ocid="results.wishlist_button"
             >
               <Heart
@@ -1830,13 +2007,18 @@ export default function ResultsPage({
             <Button
               variant="outline"
               onClick={handleShare}
-              className="flex items-center gap-2 text-black border-gray-300"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 text-black border-gray-300 py-5 text-base"
               data-ocid="results.share_button"
             >
               <Share2 className="w-4 h-4" /> Share Results
             </Button>
           </div>
         </motion.div>
+
+        {/* AI Twinning Suggestions */}
+        <TwinningLooksSuggestions
+          members={members.map((m) => m.label as MemberType)}
+        />
 
         {/* Per-member results */}
         {members.map((member) => (

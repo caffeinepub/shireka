@@ -6,6 +6,7 @@ import {
   Filter,
   Heart,
   ShoppingBag,
+  SlidersHorizontal,
   Sparkles,
   Users,
 } from "lucide-react";
@@ -13,6 +14,7 @@ import { motion } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
 import type { FindMode, Page } from "../App";
+import TwinningLooksSuggestions from "../components/TwinningLooksSuggestions";
 import { COLORS, MOCK_PRODUCTS, OCCASIONS } from "../data/products";
 
 interface HomePageProps {
@@ -260,6 +262,7 @@ export default function HomePage({ navigate }: HomePageProps) {
           src="/assets/generated/hero-twinning-bg.dim_1600x900.jpg"
           alt="Family twinning outfits"
           className="absolute inset-0 w-full h-full object-cover object-center"
+          loading="eager"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/20" />
         <div className="relative z-10 h-full flex items-center">
@@ -292,7 +295,7 @@ export default function HomePage({ navigate }: HomePageProps) {
               </div>
               <Button
                 size="lg"
-                className="text-white font-extrabold text-lg px-10 py-6 rounded-full shadow-2xl tracking-wide transition-transform hover:scale-105 active:scale-95 border-0"
+                className="w-full sm:w-auto text-white font-extrabold text-lg px-10 py-6 rounded-full shadow-2xl tracking-wide transition-transform hover:scale-105 active:scale-95 border-0"
                 style={{
                   background:
                     "linear-gradient(135deg, #f43f5e 0%, #fb923c 100%)",
@@ -373,6 +376,8 @@ export default function HomePage({ navigate }: HomePageProps) {
                     src={cat.img}
                     alt={cat.label}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                    decoding="async"
                   />
                 </div>
                 <div className="p-4 flex flex-col items-center gap-3 flex-1 justify-between">
@@ -393,6 +398,147 @@ export default function HomePage({ navigate }: HomePageProps) {
                   </button>
                 </div>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Trust Section */}
+      <section
+        className="py-12 px-4 bg-white border-y border-gray-100"
+        data-ocid="trust.section"
+      >
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="mb-6">
+            <p className="text-xs tracking-[0.3em] uppercase text-pink-500 font-semibold mb-2">
+              ✦ Social Proof ✦
+            </p>
+            <h2 className="font-display text-2xl sm:text-3xl font-bold text-gray-900 mb-1">
+              Trusted by 1000+ Users
+            </h2>
+            <p className="text-gray-500 text-base">
+              Products from top platforms
+            </p>
+          </div>
+
+          {/* Platform Pills */}
+          <div
+            className="flex flex-wrap justify-center gap-3 mb-8"
+            data-ocid="trust.panel"
+          >
+            {[
+              { name: "Amazon", color: "#FF9900", bg: "#FFF8EC", icon: "🛒" },
+              { name: "Myntra", color: "#FF3F6C", bg: "#FFF0F3", icon: "👗" },
+              { name: "Flipkart", color: "#2874F0", bg: "#EEF4FF", icon: "🛍️" },
+              { name: "Ajio", color: "#E31837", bg: "#FFF0F2", icon: "🏷️" },
+              { name: "Meesho", color: "#9B2CE8", bg: "#F5EEFF", icon: "✨" },
+            ].map((p) => (
+              <div
+                key={p.name}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm shadow-sm transition-transform hover:scale-105"
+                style={{
+                  backgroundColor: p.bg,
+                  color: p.color,
+                  border: `1.5px solid ${p.color}33`,
+                }}
+                data-ocid="trust.item"
+              >
+                <span>{p.icon}</span>
+                <span>{p.name}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Stats Row */}
+          <div
+            className="flex flex-wrap justify-center gap-8"
+            data-ocid="trust.row"
+          >
+            {[
+              { value: "500+", label: "Brands" },
+              { value: "5", label: "Platforms" },
+              { value: "1000+", label: "Happy Users" },
+            ].map((stat) => (
+              <div key={stat.label} className="text-center">
+                <div className="text-2xl font-extrabold text-gray-900">
+                  {stat.value}
+                </div>
+                <div className="text-xs text-gray-500 uppercase tracking-widest font-medium">
+                  {stat.label}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section
+        className="py-16 px-4 bg-gradient-to-b from-pink-50 to-white"
+        data-ocid="how_it_works.section"
+      >
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <p className="text-xs tracking-[0.3em] uppercase text-pink-500 font-semibold mb-2">
+              ✦ Simple Process ✦
+            </p>
+            <h2 className="text-3xl md:text-4xl font-bold text-black">
+              Find Your Perfect Twinning Outfit in{" "}
+              <span className="bg-gradient-to-r from-pink-500 to-orange-400 bg-clip-text text-transparent">
+                3 Simple Steps
+              </span>
+            </h2>
+          </div>
+          <div className="relative flex flex-col md:flex-row gap-8 items-stretch">
+            {/* Connector line (desktop only) */}
+            <div className="hidden md:block absolute top-1/3 left-[calc(16.67%+1rem)] right-[calc(16.67%+1rem)] h-0.5 border-t-2 border-dashed border-pink-200 z-0" />
+            {[
+              {
+                icon: <Users className="w-10 h-10 text-pink-500" />,
+                step: 1,
+                title: "Select Occasion & People",
+                desc: "Choose your occasion (Wedding, Casual, Party) and add family members or your partner",
+              },
+              {
+                icon: <SlidersHorizontal className="w-10 h-10 text-pink-500" />,
+                step: 2,
+                title: "Apply Filters",
+                desc: "Filter by color, size, budget, brand, and outfit type to narrow down the perfect look",
+              },
+              {
+                icon: <ShoppingBag className="w-10 h-10 text-pink-500" />,
+                step: 3,
+                title: "Get Matching Outfits",
+                desc: "Browse 500+ matching outfit styles with price comparison across Myntra, Amazon, Flipkart, Ajio & Meesho",
+              },
+            ].map((item) => (
+              <motion.div
+                key={item.step}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.45, delay: item.step * 0.12 }}
+                whileHover={{
+                  y: -4,
+                  boxShadow: "0 12px 32px rgba(236,72,153,0.12)",
+                }}
+                className="relative flex-1 bg-white rounded-2xl shadow-md p-8 flex flex-col items-center text-center z-10 cursor-default border border-pink-50"
+              >
+                {/* Step number badge */}
+                <span className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-gradient-to-br from-pink-500 to-orange-400 text-white text-sm font-bold flex items-center justify-center shadow-md">
+                  {item.step}
+                </span>
+                {/* Icon circle */}
+                <div className="w-20 h-20 rounded-full bg-pink-50 flex items-center justify-center mb-5 mt-2">
+                  {item.icon}
+                </div>
+                <h3 className="text-lg font-bold text-black mb-2">
+                  {item.title}
+                </h3>
+                <p className="text-sm text-gray-500 leading-relaxed">
+                  {item.desc}
+                </p>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -447,7 +593,7 @@ export default function HomePage({ navigate }: HomePageProps) {
             whileTap={{ scale: 0.98 }}
             onClick={() => navigate("find", "family")}
             data-ocid="twinning.family.button"
-            className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 text-white shadow-2xl shadow-blue-200 p-8 text-left flex flex-col gap-4 cursor-pointer border-0"
+            className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white shadow-2xl shadow-gray-300 p-8 text-left flex flex-col gap-4 cursor-pointer border-0"
           >
             <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center text-4xl backdrop-blur-sm">
               👨‍👩‍👧‍👦
@@ -569,6 +715,8 @@ export default function HomePage({ navigate }: HomePageProps) {
                       src={item.image}
                       alt={item.title}
                       className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-110"
+                      loading="lazy"
+                      decoding="async"
                     />
                     <div
                       className={`absolute inset-0 bg-gradient-to-t ${item.overlayGradient} via-transparent to-transparent opacity-70`}
@@ -635,7 +783,7 @@ export default function HomePage({ navigate }: HomePageProps) {
           >
             <Button
               size="lg"
-              className="font-bold tracking-widest px-10 py-5 text-sm rounded-full shadow-xl"
+              className="w-full sm:w-auto font-bold tracking-widest px-10 py-5 text-sm rounded-full shadow-xl"
               style={{
                 background: "linear-gradient(135deg, #e2c08d, #c9a55e)",
                 color: "#1a0a2e",
@@ -649,11 +797,14 @@ export default function HomePage({ navigate }: HomePageProps) {
         </div>
       </section>
 
+      {/* AI Twinning Suggestions */}
+      <TwinningLooksSuggestions />
+
       {/* Trending Twinning Outfits */}
       <section className="py-16 bg-orange-50 px-4" data-ocid="trending.section">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-10">
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-black mb-2">
+            <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-black mb-2">
               Trending Twinning Outfits 🔥
             </h2>
             <p className="text-gray-600 text-base">
@@ -670,6 +821,13 @@ export default function HomePage({ navigate }: HomePageProps) {
                   originalPrice: 1799,
                   discountPercent: 28,
                   platform: "Amazon" as const,
+                  platformPrices: [
+                    { platform: "Ajio" as const, price: 1349 },
+                    { platform: "Amazon" as const, price: 1299 },
+                    { platform: "Flipkart" as const, price: 1399 },
+                    { platform: "Meesho" as const, price: 1199 },
+                    { platform: "Myntra" as const, price: 1449 },
+                  ],
                 },
                 {
                   image: "linear-gradient(135deg, #f59e0b 0%, #f97316 100%)",
@@ -678,6 +836,12 @@ export default function HomePage({ navigate }: HomePageProps) {
                   originalPrice: 2999,
                   discountPercent: 27,
                   platform: "Ajio" as const,
+                  platformPrices: [
+                    { platform: "Ajio" as const, price: 2199 },
+                    { platform: "Amazon" as const, price: 2399 },
+                    { platform: "Flipkart" as const, price: 2299 },
+                    { platform: "Myntra" as const, price: 2499 },
+                  ],
                 },
                 {
                   image: "linear-gradient(135deg, #facc15 0%, #fb923c 100%)",
@@ -686,6 +850,12 @@ export default function HomePage({ navigate }: HomePageProps) {
                   originalPrice: 1299,
                   discountPercent: 31,
                   platform: "Meesho" as const,
+                  platformPrices: [
+                    { platform: "Amazon" as const, price: 999 },
+                    { platform: "Flipkart" as const, price: 949 },
+                    { platform: "Meesho" as const, price: 899 },
+                    { platform: "Myntra" as const, price: 1099 },
+                  ],
                 },
                 {
                   image: "linear-gradient(135deg, #f43f5e 0%, #e11d48 100%)",
@@ -694,6 +864,13 @@ export default function HomePage({ navigate }: HomePageProps) {
                   originalPrice: 4999,
                   discountPercent: 34,
                   platform: "Myntra" as const,
+                  platformPrices: [
+                    { platform: "Ajio" as const, price: 3199 },
+                    { platform: "Amazon" as const, price: 3499 },
+                    { platform: "Flipkart" as const, price: 3399 },
+                    { platform: "Meesho" as const, price: 2999 },
+                    { platform: "Myntra" as const, price: 3299 },
+                  ],
                 },
               ] as {
                 image: string;
@@ -702,6 +879,15 @@ export default function HomePage({ navigate }: HomePageProps) {
                 originalPrice: number;
                 discountPercent: number;
                 platform: "Amazon" | "Myntra" | "Flipkart" | "Ajio" | "Meesho";
+                platformPrices: {
+                  platform:
+                    | "Amazon"
+                    | "Myntra"
+                    | "Flipkart"
+                    | "Ajio"
+                    | "Meesho";
+                  price: number;
+                }[];
               }[]
             ).map((item, idx) => (
               <div key={item.title} data-ocid={`trending.item.${idx + 1}`}>
@@ -716,7 +902,7 @@ export default function HomePage({ navigate }: HomePageProps) {
       <section className="py-16 bg-rose-50 px-4" data-ocid="wedding.section">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-10">
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-black mb-2">
+            <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-black mb-2">
               Wedding Special 💍
             </h2>
             <p className="text-gray-600 text-base">
@@ -733,6 +919,13 @@ export default function HomePage({ navigate }: HomePageProps) {
                   originalPrice: 12999,
                   discountPercent: 42,
                   platform: "Myntra" as const,
+                  platformPrices: [
+                    { platform: "Ajio" as const, price: 7799 },
+                    { platform: "Amazon" as const, price: 7999 },
+                    { platform: "Flipkart" as const, price: 7699 },
+                    { platform: "Meesho" as const, price: 6999 },
+                    { platform: "Myntra" as const, price: 7499 },
+                  ],
                 },
                 {
                   image: "linear-gradient(135deg, #f43f5e 0%, #db2777 100%)",
@@ -741,6 +934,12 @@ export default function HomePage({ navigate }: HomePageProps) {
                   originalPrice: 8999,
                   discountPercent: 33,
                   platform: "Flipkart" as const,
+                  platformPrices: [
+                    { platform: "Ajio" as const, price: 6299 },
+                    { platform: "Amazon" as const, price: 6499 },
+                    { platform: "Flipkart" as const, price: 5999 },
+                    { platform: "Myntra" as const, price: 6199 },
+                  ],
                 },
                 {
                   image: "linear-gradient(135deg, #c026d3 0%, #ec4899 100%)",
@@ -749,6 +948,13 @@ export default function HomePage({ navigate }: HomePageProps) {
                   originalPrice: 18999,
                   discountPercent: 32,
                   platform: "Ajio" as const,
+                  platformPrices: [
+                    { platform: "Ajio" as const, price: 12999 },
+                    { platform: "Amazon" as const, price: 13499 },
+                    { platform: "Flipkart" as const, price: 13999 },
+                    { platform: "Meesho" as const, price: 11999 },
+                    { platform: "Myntra" as const, price: 13299 },
+                  ],
                 },
                 {
                   image: "linear-gradient(135deg, #f9a8d4 0%, #f43f5e 100%)",
@@ -757,6 +963,12 @@ export default function HomePage({ navigate }: HomePageProps) {
                   originalPrice: 2799,
                   discountPercent: 32,
                   platform: "Meesho" as const,
+                  platformPrices: [
+                    { platform: "Amazon" as const, price: 2099 },
+                    { platform: "Flipkart" as const, price: 1999 },
+                    { platform: "Meesho" as const, price: 1899 },
+                    { platform: "Myntra" as const, price: 2199 },
+                  ],
                 },
               ] as {
                 image: string;
@@ -765,6 +977,15 @@ export default function HomePage({ navigate }: HomePageProps) {
                 originalPrice: number;
                 discountPercent: number;
                 platform: "Amazon" | "Myntra" | "Flipkart" | "Ajio" | "Meesho";
+                platformPrices?: {
+                  platform:
+                    | "Amazon"
+                    | "Myntra"
+                    | "Flipkart"
+                    | "Ajio"
+                    | "Meesho";
+                  price: number;
+                }[];
               }[]
             ).map((item, idx) => (
               <div key={item.title} data-ocid={`wedding.item.${idx + 1}`}>
@@ -782,7 +1003,7 @@ export default function HomePage({ navigate }: HomePageProps) {
       >
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-10">
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-black mb-2">
+            <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-black mb-2">
               Kids Matching 👶
             </h2>
             <p className="text-gray-600 text-base">
@@ -799,6 +1020,12 @@ export default function HomePage({ navigate }: HomePageProps) {
                   originalPrice: 1199,
                   discountPercent: 33,
                   platform: "Meesho" as const,
+                  platformPrices: [
+                    { platform: "Amazon" as const, price: 899 },
+                    { platform: "Flipkart" as const, price: 849 },
+                    { platform: "Meesho" as const, price: 799 },
+                    { platform: "Myntra" as const, price: 949 },
+                  ],
                 },
                 {
                   image: "linear-gradient(135deg, #22d3ee 0%, #0ea5e9 100%)",
@@ -807,6 +1034,13 @@ export default function HomePage({ navigate }: HomePageProps) {
                   originalPrice: 1899,
                   discountPercent: 32,
                   platform: "Flipkart" as const,
+                  platformPrices: [
+                    { platform: "Ajio" as const, price: 1349 },
+                    { platform: "Amazon" as const, price: 1399 },
+                    { platform: "Flipkart" as const, price: 1299 },
+                    { platform: "Meesho" as const, price: 1199 },
+                    { platform: "Myntra" as const, price: 1449 },
+                  ],
                 },
                 {
                   image: "linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%)",
@@ -815,6 +1049,12 @@ export default function HomePage({ navigate }: HomePageProps) {
                   originalPrice: 899,
                   discountPercent: 33,
                   platform: "Amazon" as const,
+                  platformPrices: [
+                    { platform: "Amazon" as const, price: 599 },
+                    { platform: "Flipkart" as const, price: 649 },
+                    { platform: "Meesho" as const, price: 549 },
+                    { platform: "Myntra" as const, price: 699 },
+                  ],
                 },
                 {
                   image: "linear-gradient(135deg, #6366f1 0%, #3b82f6 100%)",
@@ -823,6 +1063,13 @@ export default function HomePage({ navigate }: HomePageProps) {
                   originalPrice: 2699,
                   discountPercent: 30,
                   platform: "Ajio" as const,
+                  platformPrices: [
+                    { platform: "Ajio" as const, price: 1899 },
+                    { platform: "Amazon" as const, price: 1999 },
+                    { platform: "Flipkart" as const, price: 1949 },
+                    { platform: "Meesho" as const, price: 1749 },
+                    { platform: "Myntra" as const, price: 2099 },
+                  ],
                 },
               ] as {
                 image: string;
@@ -831,6 +1078,15 @@ export default function HomePage({ navigate }: HomePageProps) {
                 originalPrice: number;
                 discountPercent: number;
                 platform: "Amazon" | "Myntra" | "Flipkart" | "Ajio" | "Meesho";
+                platformPrices?: {
+                  platform:
+                    | "Amazon"
+                    | "Myntra"
+                    | "Flipkart"
+                    | "Ajio"
+                    | "Meesho";
+                  price: number;
+                }[];
               }[]
             ).map((item, idx) => (
               <div key={item.title} data-ocid={`kids_matching.item.${idx + 1}`}>
@@ -850,10 +1106,10 @@ export default function HomePage({ navigate }: HomePageProps) {
           <KidsCard
             title="Boys"
             subtitle="Trendy styles for little gents"
-            bgClass="bg-blue-50"
+            bgClass="bg-pink-50"
             accentClass="text-blue-800"
             borderClass="border-blue-200"
-            hoverBgClass="hover:bg-blue-100"
+            hoverBgClass="hover:bg-pink-100"
             icon="👦"
             categories={BOYS_CATEGORIES}
             onClick={() => navigate("find")}
@@ -915,7 +1171,7 @@ export default function HomePage({ navigate }: HomePageProps) {
           </div>
           <Button
             size="lg"
-            className="bg-white text-foreground hover:bg-white/90 font-semibold shrink-0"
+            className="w-full sm:w-auto bg-white text-foreground hover:bg-white/90 font-semibold"
             onClick={() => navigate("find")}
             data-ocid="ai_banner.primary_button"
           >
@@ -939,8 +1195,11 @@ export default function HomePage({ navigate }: HomePageProps) {
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Filter Sidebar */}
-          <aside className="lg:w-56 shrink-0" data-ocid="filter.panel">
+          {/* Filter Sidebar - Desktop */}
+          <aside
+            className="hidden lg:block lg:w-56 shrink-0"
+            data-ocid="filter.panel"
+          >
             <div className="bg-card border border-border rounded p-4 space-y-6">
               <div>
                 <h4 className="font-semibold text-xs tracking-widest uppercase mb-3 flex items-center gap-2">
@@ -1063,6 +1322,8 @@ export default function HomePage({ navigate }: HomePageProps) {
                         src={product.imageUrl}
                         alt={product.name}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        loading="lazy"
+                        decoding="async"
                       />
                       <button
                         type="button"
@@ -1133,7 +1394,7 @@ export default function HomePage({ navigate }: HomePageProps) {
                 size="lg"
                 onClick={() => navigate("find")}
                 data-ocid="discovery.view_all.button"
-                className="tracking-wider"
+                className="w-full sm:w-auto tracking-wider"
               >
                 VIEW ALL COLLECTIONS <ChevronRight className="ml-1 w-4 h-4" />
               </Button>
