@@ -14,6 +14,9 @@ import { motion } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
 import type { FindMode, Page } from "../App";
+import PhotoSearch from "../components/PhotoSearch";
+import SmartSearchBar from "../components/SmartSearchBar";
+import Testimonials from "../components/Testimonials";
 import TwinningLooksSuggestions from "../components/TwinningLooksSuggestions";
 import { COLORS, MOCK_PRODUCTS, OCCASIONS } from "../data/products";
 
@@ -279,9 +282,16 @@ export default function HomePage({ navigate }: HomePageProps) {
               <h1 className="font-display text-5xl sm:text-6xl md:text-7xl font-bold text-white leading-tight tracking-tight mb-5">
                 Find Perfect Twinning Outfits Instantly
               </h1>
-              <p className="text-white/90 text-lg md:text-xl mb-6 leading-relaxed font-medium">
+              <p className="text-white/90 text-lg md:text-xl mb-5 leading-relaxed font-medium">
                 Compare prices from Myntra, Amazon, Ajio, Flipkart &amp; Meesho
               </p>
+              <div className="mb-6">
+                <SmartSearchBar
+                  onSearch={() => navigate("find")}
+                  variant="hero"
+                  className="w-full max-w-xl"
+                />
+              </div>
               <div className="flex flex-wrap gap-2 mb-8">
                 <span className="bg-white/20 text-white text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur-sm">
                   👗 500+ Outfit Styles
@@ -306,6 +316,17 @@ export default function HomePage({ navigate }: HomePageProps) {
               >
                 🛍️ Start Finding Outfits
               </Button>
+              <button
+                type="button"
+                onClick={() => {
+                  const el = document.getElementById("photo-search-section");
+                  if (el) el.scrollIntoView({ behavior: "smooth" });
+                }}
+                className="mt-3 w-full sm:w-auto block text-white/80 text-sm font-medium hover:text-white transition-colors underline underline-offset-2"
+                data-ocid="hero.secondary_button"
+              >
+                📷 Upload Photo &amp; Find Similar
+              </button>
             </motion.div>
           </div>
         </div>
@@ -403,6 +424,11 @@ export default function HomePage({ navigate }: HomePageProps) {
         </div>
       </section>
 
+      {/* Photo Search Section */}
+      <div id="photo-search-section">
+        <PhotoSearch navigate={(p) => navigate(p)} />
+      </div>
+
       {/* Trust Section */}
       <section
         className="py-12 px-4 bg-white border-y border-gray-100"
@@ -471,6 +497,9 @@ export default function HomePage({ navigate }: HomePageProps) {
           </div>
         </div>
       </section>
+
+      {/* Testimonials Section */}
+      <Testimonials />
 
       {/* How It Works Section */}
       <section

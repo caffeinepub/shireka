@@ -16,6 +16,7 @@ import type { Page } from "../App";
 import { useWishlistContext } from "../contexts/WishlistContext";
 import { ADULT_SIZES, INFANT_MONTHS, KID_AGES } from "../data/products";
 import { useInternetIdentity } from "../hooks/useInternetIdentity";
+import SmartSearchBar from "./SmartSearchBar";
 
 interface NavbarProps {
   currentPage: Page;
@@ -747,18 +748,11 @@ export default function Navbar({ currentPage, navigate }: NavbarProps) {
               className="overflow-hidden"
             >
               <div className="py-4 space-y-4">
-                <input
-                  type="text"
-                  placeholder="Search outfits, occasions..."
-                  value={searchState.keyword}
-                  onChange={(e) =>
-                    setSearchState((prev) => ({
-                      ...prev,
-                      keyword: e.target.value,
-                    }))
-                  }
-                  className="w-full bg-background border border-border rounded px-4 py-2 text-sm outline-none focus:ring-1 focus:ring-foreground"
-                  data-ocid="nav.search_input"
+                <SmartSearchBar
+                  onSearch={() => handleSearch()}
+                  placeholder="Search 'wedding couple outfits', 'kids twinning'..."
+                  variant="navbar"
+                  className="w-full"
                 />
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   {GROUP_CONFIG.map((group) => {
