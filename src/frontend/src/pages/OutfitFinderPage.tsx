@@ -157,9 +157,9 @@ export default function OutfitFinderPage({
       label: mt.label,
       icon: mt.icon,
       count: 0,
-      size: mt.defaultSize,
-      garment: mt.defaultGarment,
-      color: "Pink",
+      size: "",
+      garment: "",
+      color: "",
     })),
   );
 
@@ -399,6 +399,7 @@ export default function OutfitFinderPage({
                               className="w-full text-xs bg-background border border-border rounded px-2 py-1.5 outline-none focus:ring-1 focus:ring-primary"
                               data-ocid={`outfit_finder.member.${slot.typeId}.size.select`}
                             >
+                              <option value="">Select option</option>
                               {sizes.map((sz) => (
                                 <option key={sz} value={sz}>
                                   {slot.gender === "infant"

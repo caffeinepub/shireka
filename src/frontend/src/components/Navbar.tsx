@@ -150,14 +150,14 @@ const GROUP_CONFIG: {
 }[] = [
   {
     key: "male",
-    label: "Male",
+    label: "Men",
     icon: "👨",
     sizeLabel: "Size",
     sizes: ADULT_SIZES,
   },
   {
     key: "female",
-    label: "Female",
+    label: "Women",
     icon: "👩",
     sizeLabel: "Size",
     sizes: ADULT_SIZES,
@@ -171,7 +171,7 @@ const GROUP_CONFIG: {
   },
   {
     key: "infants",
-    label: "Infants",
+    label: "Baby",
     icon: "👶",
     sizeLabel: "Months",
     sizes: INFANT_MONTHS.map(String),
@@ -251,9 +251,11 @@ export default function Navbar({ currentPage, navigate }: NavbarProps) {
             onClick={() => navigate("home")}
             data-ocid="nav.home.link"
           >
-            <span className="font-display text-2xl md:text-3xl font-bold tracking-wide text-foreground">
-              Shireka
-            </span>
+            <img
+              src="/assets/generated/shireka-fashion-logo-transparent.dim_400x120.png"
+              alt="Shireka Fashion"
+              className="h-9 object-contain"
+            />
             <Flower2 className="w-4 h-4 text-foreground/50 group-hover:text-foreground transition-colors" />
           </button>
 

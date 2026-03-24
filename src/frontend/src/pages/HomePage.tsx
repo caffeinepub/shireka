@@ -1,3 +1,4 @@
+import { PlatformTrustStrip } from "@/components/PlatformTrustStrip";
 import { ProductCard } from "@/components/ProductCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -305,16 +306,16 @@ export default function HomePage({ navigate }: HomePageProps) {
               </div>
               <Button
                 size="lg"
-                className="w-full sm:w-auto text-white font-extrabold text-lg px-10 py-6 rounded-full shadow-2xl tracking-wide transition-transform hover:scale-105 active:scale-95 border-0"
+                className="w-full sm:w-auto text-white font-black text-xl px-12 py-7 rounded-full tracking-wide transition-all hover:scale-105 hover:-translate-y-0.5 active:scale-95 border-0"
                 style={{
-                  background:
-                    "linear-gradient(135deg, #f43f5e 0%, #fb923c 100%)",
-                  boxShadow: "0 8px 32px rgba(244,63,94,0.5)",
+                  background: "#AD1457",
+                  boxShadow:
+                    "0 8px 30px rgba(173,20,87,0.55), 0 2px 8px rgba(0,0,0,0.25)",
                 }}
                 onClick={() => navigate("find")}
                 data-ocid="hero.primary_button"
               >
-                🛍️ Start Finding Outfits
+                🛍️ Find My Outfit
               </Button>
               <button
                 type="button"
@@ -443,7 +444,7 @@ export default function HomePage({ navigate }: HomePageProps) {
               Trusted by 1000+ Users
             </h2>
             <p className="text-gray-500 text-base">
-              Products from top platforms
+              Shop identical outfits. Compare prices instantly.
             </p>
           </div>
 
@@ -461,11 +462,11 @@ export default function HomePage({ navigate }: HomePageProps) {
             ].map((p) => (
               <div
                 key={p.name}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-sm shadow-sm transition-transform hover:scale-105"
+                className="flex items-center gap-2 px-6 py-3 rounded-full font-bold text-base shadow-md transition-transform hover:scale-105 hover:shadow-lg"
                 style={{
                   backgroundColor: p.bg,
                   color: p.color,
-                  border: `1.5px solid ${p.color}33`,
+                  border: `2px solid ${p.color}55`,
                 }}
                 data-ocid="trust.item"
               >
@@ -605,13 +606,13 @@ export default function HomePage({ navigate }: HomePageProps) {
                 Couple Twinning ❤️
               </h3>
               <p className="text-white/80 text-sm leading-relaxed">
-                Find perfectly coordinated outfits for you and your partner.
-                Male & female options with matching colors and styles.
+                Find perfectly coordinated outfits for you and your partner. Men
+                & Women options with matching colors and styles.
               </p>
             </div>
             <div className="flex items-center gap-2 text-white/90 text-sm font-semibold">
               <Heart className="w-4 h-4" />
-              Male · Female options
+              Men · Women options
             </div>
             <div className="absolute -bottom-8 -right-8 w-32 h-32 rounded-full bg-white/10 group-hover:scale-125 transition-transform duration-500" />
           </motion.button>
@@ -638,7 +639,7 @@ export default function HomePage({ navigate }: HomePageProps) {
             </div>
             <div className="flex flex-wrap items-center gap-1.5 text-white/90 text-xs font-medium">
               <Users className="w-3.5 h-3.5" />
-              Male · Female · Boys · Girls · Baby Boy · Baby Girl
+              Men · Women · Boys · Girls · Baby Boy · Baby Girl
             </div>
             <div className="absolute -bottom-8 -right-8 w-32 h-32 rounded-full bg-white/10 group-hover:scale-125 transition-transform duration-500" />
           </motion.button>
@@ -839,6 +840,7 @@ export default function HomePage({ navigate }: HomePageProps) {
             <p className="text-gray-600 text-base">
               Most loved matching outfits this season
             </p>
+            <PlatformTrustStrip className="mt-3" />
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {(
@@ -920,7 +922,11 @@ export default function HomePage({ navigate }: HomePageProps) {
               }[]
             ).map((item, idx) => (
               <div key={item.title} data-ocid={`trending.item.${idx + 1}`}>
-                <ProductCard {...item} ocidSuffix={`trending_${idx + 1}`} />
+                <ProductCard
+                  {...item}
+                  ocidSuffix={`trending_${idx + 1}`}
+                  tag={idx % 2 === 0 ? "Trending" : "Best Match"}
+                />
               </div>
             ))}
           </div>
@@ -937,6 +943,7 @@ export default function HomePage({ navigate }: HomePageProps) {
             <p className="text-gray-600 text-base">
               Coordinated bridal and festive wear for the whole family
             </p>
+            <PlatformTrustStrip className="mt-3" />
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {(
@@ -1018,7 +1025,11 @@ export default function HomePage({ navigate }: HomePageProps) {
               }[]
             ).map((item, idx) => (
               <div key={item.title} data-ocid={`wedding.item.${idx + 1}`}>
-                <ProductCard {...item} ocidSuffix={`wedding_${idx + 1}`} />
+                <ProductCard
+                  {...item}
+                  ocidSuffix={`wedding_${idx + 1}`}
+                  tag="Best Match"
+                />
               </div>
             ))}
           </div>
@@ -1038,6 +1049,7 @@ export default function HomePage({ navigate }: HomePageProps) {
             <p className="text-gray-600 text-base">
               Adorable coordinated outfits for little ones
             </p>
+            <PlatformTrustStrip className="mt-3" />
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {(
@@ -1119,7 +1131,11 @@ export default function HomePage({ navigate }: HomePageProps) {
               }[]
             ).map((item, idx) => (
               <div key={item.title} data-ocid={`kids_matching.item.${idx + 1}`}>
-                <ProductCard {...item} ocidSuffix={`kids_${idx + 1}`} />
+                <ProductCard
+                  {...item}
+                  ocidSuffix={`kids_${idx + 1}`}
+                  tag="Trending"
+                />
               </div>
             ))}
           </div>

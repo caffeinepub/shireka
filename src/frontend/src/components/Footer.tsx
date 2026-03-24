@@ -21,7 +21,11 @@ export default function Footer({ navigate }: FooterProps) {
               onClick={() => navigate("home")}
               className="font-display text-4xl font-bold tracking-wide"
             >
-              Shireka
+              <img
+                src="/assets/generated/shireka-fashion-logo-transparent.dim_400x120.png"
+                alt="Shireka Fashion"
+                className="h-12 object-contain"
+              />
             </button>
             <p className="text-sm text-muted-foreground mt-3 max-w-xs">
               India's premier destination for twinning outfits — couples,
@@ -123,7 +127,7 @@ export default function Footer({ navigate }: FooterProps) {
               </a>
             </div>
             <div className="mt-4 space-y-1 text-sm text-muted-foreground">
-              <p>#ShirekaTwinning</p>
+              <p>#ShirekaFashionTwinning</p>
               <p>#MatchingOutfits</p>
             </div>
           </div>
@@ -155,7 +159,7 @@ export default function Footer({ navigate }: FooterProps) {
         </div>
 
         <div className="border-t border-border pt-4 flex flex-col md:flex-row justify-between items-center gap-2 text-xs text-muted-foreground">
-          <p>© {year} Shireka. All rights reserved.</p>
+          <p>© {year} Shireka Fashion. All rights reserved.</p>
           <p>
             Built with ❤️ using{" "}
             <a

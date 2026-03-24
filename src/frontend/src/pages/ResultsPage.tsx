@@ -24,6 +24,8 @@ import {
   ExternalLink,
   Filter,
   Heart,
+  RotateCcw,
+  SearchX,
   Share2,
   SlidersHorizontal,
   Sparkles,
@@ -1236,7 +1238,7 @@ function QuickViewModal({
             <div
               className="relative w-full overflow-hidden"
               style={{
-                height: 280,
+                aspectRatio: "4/5",
                 borderBottom: `4px solid ${isMulti ? "#FFD700" : colorHex}`,
               }}
             >
@@ -1245,7 +1247,7 @@ function QuickViewModal({
                   key={variant.variantIndex}
                   src={imgUrl}
                   alt={variant.fullName}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover object-top"
                   onError={() => setImgError(true)}
                   loading="lazy"
                   decoding="async"
@@ -1433,7 +1435,7 @@ function OutfitVariantCard({
       <div
         className="relative w-full overflow-hidden flex-shrink-0"
         style={{
-          height: 140,
+          aspectRatio: "4/5",
           borderBottom: `4px solid ${isMulti ? "#FFD700" : colorHex}`,
         }}
       >
@@ -1441,7 +1443,7 @@ function OutfitVariantCard({
           <img
             src={imgUrl}
             alt={variant.fullName}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-top"
             onError={() => setImgError(true)}
             loading="lazy"
             decoding="async"
@@ -1624,7 +1626,7 @@ function MemberSection({ member }: { member: MemberConfig }) {
 
   const lowestCompPrice = Math.min(...comparisonRows.map((r) => r.price));
 
-  const hasActiveFilters =
+  const _hasActiveFilters =
     filters.selectedCategories.size > 0 ||
     filters.selectedPlatforms.size > 0 ||
     filters.maxPrice < 5000;
@@ -1662,28 +1664,30 @@ function MemberSection({ member }: { member: MemberConfig }) {
 
       {/* Outfit scroll or empty state */}
       {filteredVariants.length === 0 ? (
-        <div
-          className="mx-4 my-4 flex flex-col items-center justify-center py-8 bg-gray-50 rounded-xl border border-dashed border-gray-300"
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mx-4 my-6 flex flex-col items-center justify-center py-10 bg-pink-50 rounded-2xl border border-dashed border-pink-200"
           data-ocid="outfit_scroll.empty_state"
         >
-          <p className="text-3xl mb-2">🔍</p>
-          <p className="text-sm font-semibold text-gray-700 mb-1">
-            No styles match your filters.
+          <div className="w-14 h-14 rounded-full bg-white shadow-md flex items-center justify-center mb-4">
+            <SearchX className="w-7 h-7 text-pink-400" />
+          </div>
+          <p className="text-base font-bold text-black mb-1 text-center px-4">
+            No outfits found. Try different filters
           </p>
-          <p className="text-xs text-gray-400 mb-3">
-            Adjust or clear your filters to see all 100 options.
+          <p className="text-sm text-gray-500 mb-4 text-center px-6">
+            Adjust your color, size, or occasion filters to see more results
           </p>
-          {hasActiveFilters && (
-            <button
-              type="button"
-              onClick={() => setFilters(DEFAULT_FILTER)}
-              className="flex items-center gap-1.5 text-xs font-bold text-foreground bg-pink-50 hover:bg-pink-100 px-4 py-2 rounded-full transition-colors"
-              data-ocid="outfit_scroll.clear_filters_button"
-            >
-              <X className="w-3 h-3" /> Clear Filters
-            </button>
-          )}
-        </div>
+          <button
+            type="button"
+            onClick={() => setFilters(DEFAULT_FILTER)}
+            className="flex items-center gap-2 text-sm font-bold text-white bg-pink-500 hover:bg-pink-600 active:bg-pink-700 px-5 py-2.5 rounded-full shadow-md transition-colors"
+            data-ocid="outfit_scroll.reset_filters_button"
+          >
+            <RotateCcw className="w-4 h-4" /> Reset Filters
+          </button>
+        </motion.div>
       ) : (
         <div className="relative px-2 pt-3 pb-2">
           {/* Left arrow */}
@@ -1897,11 +1901,11 @@ export default function ResultsPage({
   };
 
   const handleShare = async () => {
-    const text = `Check out my Shireka twinning combo! Color: ${color} — ${members
+    const text = `Check out my Shireka Fashion twinning combo! Color: ${color} — ${members
       .map((m) => `${m.label}: ${m.garment} (${m.size})`)
       .join(", ")}`;
     if (navigator.share) {
-      await navigator.share({ title: "Shireka Twinning Outfit", text });
+      await navigator.share({ title: "Shireka Fashion Twinning Outfit", text });
     } else {
       await navigator.clipboard.writeText(text);
       toast.success("Copied to clipboard!");
@@ -1914,22 +1918,29 @@ export default function ResultsPage({
         className="min-h-screen flex flex-col items-center justify-center py-16 px-4"
         style={{ background: "#1a56db" }}
       >
-        <div className="bg-white rounded-2xl p-8 text-center shadow-xl max-w-sm">
-          <p className="text-2xl mb-3">🔍</p>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-white rounded-2xl p-8 text-center shadow-2xl max-w-sm w-full"
+          data-ocid="results.empty_state"
+        >
+          <div className="w-16 h-16 rounded-full bg-pink-50 flex items-center justify-center mx-auto mb-4">
+            <SearchX className="w-8 h-8 text-pink-400" />
+          </div>
           <h2 className="text-xl font-bold text-black mb-2">
-            No outfit selected yet
+            No outfits found. Try different filters
           </h2>
-          <p className="text-gray-500 mb-4 text-sm">
-            Use the Twinning Finder to pick outfits and see results here.
+          <p className="text-gray-500 mb-5 text-sm">
+            Adjust your color, size, or occasion filters to see more results
           </p>
           <Button
             onClick={() => navigate("find")}
-            className="bg-yellow-400 text-black font-bold hover:bg-yellow-300 border-0"
-            data-ocid="results.go_find_button"
+            className="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-full shadow-md border-0 py-5"
+            data-ocid="results.modify_search_button"
           >
-            Start Finding
+            <RotateCcw className="w-4 h-4 mr-2" /> Modify Search
           </Button>
-        </div>
+        </motion.div>
       </div>
     );
   }

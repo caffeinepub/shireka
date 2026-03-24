@@ -20,6 +20,8 @@ export interface ProductCardProps {
   viewUrl?: string;
   /** Optional price comparison across platforms */
   platformPrices?: PlatformPrice[];
+  /** Optional tag: "Trending", "Best Match", "New Arrival" */
+  tag?: string;
   /** Optional: ocid suffix for deterministic markers */
   ocidSuffix?: string;
 }
@@ -78,6 +80,7 @@ export function ProductCard({
   viewUrl = "#",
   platformPrices,
   ocidSuffix,
+  tag,
 }: ProductCardProps) {
   const [showPrices, setShowPrices] = useState(false);
   const plat = PLATFORM_CONFIG[platform];
@@ -105,17 +108,21 @@ export function ProductCard({
 
   return (
     <article
-      className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow flex flex-col"
+      className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow flex flex-col"
       data-ocid={`${ocidBase}.card`}
     >
       {/* Image area */}
       <div
         className="relative w-full overflow-hidden"
-        style={{ aspectRatio: "3/4" }}
+        style={{ aspectRatio: "4/5" }}
       >
         <div
-          className="w-full h-full flex items-end justify-center"
-          style={{ background: image }}
+          className="w-full h-full flex items-end justify-center transition-transform duration-300 ease-out group-hover:scale-105"
+          style={{
+            background: image,
+            backgroundSize: "cover",
+            backgroundPosition: "center top",
+          }}
         >
           <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
         </div>
@@ -128,9 +135,25 @@ export function ProductCard({
           {plat.label}
         </span>
 
+        {/* Tag badge — bottom-left */}
+        {tag && (
+          <span
+            className={`absolute bottom-2 left-2 z-10 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-black tracking-wide shadow ${
+              tag === "Trending"
+                ? "bg-rose-500 text-white"
+                : tag === "Best Match"
+                  ? "bg-amber-500 text-white"
+                  : "bg-gray-600 text-white"
+            }`}
+          >
+            {tag === "Trending" ? "🔥 " : tag === "Best Match" ? "⭐ " : ""}
+            {tag}
+          </span>
+        )}
+
         {/* Discount badge — top-right */}
         <span
-          className="absolute top-2 right-2 z-10 bg-red-500 text-white text-xs font-extrabold px-2 py-0.5 rounded-full shadow"
+          className="absolute top-2 right-2 z-10 bg-red-600 text-white text-sm font-black px-2 py-0.5 rounded-full shadow"
           data-ocid={`${ocidBase}.discount_badge`}
         >
           {discountPercent}% OFF
@@ -158,6 +181,29 @@ export function ProductCard({
         </div>
 
         <div className="flex-1" />
+
+        {/* Mini platform compare badges */}
+        {sortedPrices && sortedPrices.length > 0 && (
+          <div
+            className="flex flex-wrap items-center gap-1 mt-1"
+            data-ocid={`${ocidBase}.compare_row`}
+          >
+            <span className="text-[10px] text-gray-400 font-medium">
+              Compare on:
+            </span>
+            {sortedPrices.map((pp) => {
+              const cfg = PLATFORM_CONFIG[pp.platform];
+              return (
+                <span
+                  key={pp.platform}
+                  className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${cfg.bg} ${cfg.text}`}
+                >
+                  {pp.platform}
+                </span>
+              );
+            })}
+          </div>
+        )}
 
         {/* View Product button */}
         <Button

@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/button";
 import { ShoppingBag, Sparkles, Tag } from "lucide-react";
 
 export type MemberType =
-  | "Male"
-  | "Female"
+  | "Men"
+  | "Women"
   | "Boys"
   | "Girls"
   | "Baby Boy"
@@ -47,15 +47,15 @@ const ALL_COMBOS: OutfitCombo[] = [
     occasion: "Wedding",
     priceRange: "₹3,499 – ₹6,999",
     outfits: {
-      Male: {
-        memberType: "Male",
+      Men: {
+        memberType: "Men",
         styleName: "Bandhgala Suit",
         color: "Ivory Gold",
         gradient: "linear-gradient(135deg, #f5e6c8 0%, #d4a853 100%)",
         emoji: "👔",
       },
-      Female: {
-        memberType: "Female",
+      Women: {
+        memberType: "Women",
         styleName: "Banarasi Anarkali",
         color: "Deep Rose",
         gradient: "linear-gradient(135deg, #fce4ec 0%, #c2185b 100%)",
@@ -104,15 +104,15 @@ const ALL_COMBOS: OutfitCombo[] = [
     occasion: "Festival",
     priceRange: "₹2,199 – ₹4,499",
     outfits: {
-      Male: {
-        memberType: "Male",
+      Men: {
+        memberType: "Men",
         styleName: "Phulkari Kurta",
         color: "Mustard Yellow",
         gradient: "linear-gradient(135deg, #fef9c3 0%, #f59e0b 100%)",
         emoji: "👔",
       },
-      Female: {
-        memberType: "Female",
+      Women: {
+        memberType: "Women",
         styleName: "Lucknowi Palazzo Set",
         color: "Turquoise",
         gradient: "linear-gradient(135deg, #ccfbf1 0%, #0d9488 100%)",
@@ -161,15 +161,15 @@ const ALL_COMBOS: OutfitCombo[] = [
     occasion: "Casual",
     priceRange: "₹1,299 – ₹2,999",
     outfits: {
-      Male: {
-        memberType: "Male",
+      Men: {
+        memberType: "Men",
         styleName: "Linen Shirt Pants",
         color: "Sky Blue",
         gradient: "linear-gradient(135deg, #dbeafe 0%, #60a5fa 100%)",
         emoji: "👔",
       },
-      Female: {
-        memberType: "Female",
+      Women: {
+        memberType: "Women",
         styleName: "Cotton Kurti Palazzo",
         color: "Lavender",
         gradient: "linear-gradient(135deg, #ede9fe 0%, #7c3aed 100%)",
@@ -215,8 +215,8 @@ const ALL_COMBOS: OutfitCombo[] = [
 ];
 
 const DISPLAY_MEMBER_ORDER: MemberType[] = [
-  "Male",
-  "Female",
+  "Men",
+  "Women",
   "Boys",
   "Girls",
   "Kids",
@@ -256,7 +256,7 @@ export default function TwinningLooksSuggestions({
   subtitle = "Handpicked complete outfit combos for your family",
 }: TwinningLooksSuggestionsProps) {
   const activeMemberTypes: MemberType[] =
-    members && members.length > 0 ? members : ["Male", "Female", "Kids"];
+    members && members.length > 0 ? members : ["Men", "Women", "Kids"];
 
   let combos = [...ALL_COMBOS];
   if (occasion) {
