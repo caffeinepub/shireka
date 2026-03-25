@@ -26,6 +26,7 @@ export interface ProductCardProps {
   ocidSuffix?: string;
 }
 
+// Platform brand colors are kept ONLY as informational badges (showing which platform)
 const PLATFORM_CONFIG: Record<
   Platform,
   { label: string; bg: string; text: string; btnBg: string }
@@ -86,7 +87,6 @@ export function ProductCard({
   const plat = PLATFORM_CONFIG[platform];
   const ocidBase = ocidSuffix ? `product_card.${ocidSuffix}` : "product_card";
 
-  // Sort platform prices in canonical order
   const sortedPrices = platformPrices
     ? [...platformPrices].sort(
         (a, b) =>
@@ -127,7 +127,7 @@ export function ProductCard({
           <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
         </div>
 
-        {/* Platform badge — top-left */}
+        {/* Platform badge — informational brand color kept */}
         <span
           className={`absolute top-2 left-2 z-10 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold tracking-wide ${plat.bg} ${plat.text} shadow`}
           data-ocid={`${ocidBase}.platform_badge`}
@@ -135,25 +135,24 @@ export function ProductCard({
           {plat.label}
         </span>
 
-        {/* Tag badge — bottom-left */}
+        {/* Tag badge — pastel pink + black text */}
         {tag && (
           <span
-            className={`absolute bottom-2 left-2 z-10 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-black tracking-wide shadow ${
-              tag === "Trending"
-                ? "bg-rose-500 text-white"
-                : tag === "Best Match"
-                  ? "bg-amber-500 text-white"
-                  : "bg-gray-600 text-white"
-            }`}
+            className="absolute bottom-2 left-2 z-10 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-black tracking-wide shadow"
+            style={{
+              background: "var(--color-pink)",
+              color: "var(--color-black)",
+            }}
           >
             {tag === "Trending" ? "🔥 " : tag === "Best Match" ? "⭐ " : ""}
             {tag}
           </span>
         )}
 
-        {/* Discount badge — top-right */}
+        {/* Discount badge — black bg, white text */}
         <span
-          className="absolute top-2 right-2 z-10 bg-red-600 text-white text-sm font-black px-2 py-0.5 rounded-full shadow"
+          className="absolute top-2 right-2 z-10 text-white text-sm font-black px-2 py-0.5 rounded-full shadow"
+          style={{ background: "var(--color-black)" }}
           data-ocid={`${ocidBase}.discount_badge`}
         >
           {discountPercent}% OFF
@@ -162,7 +161,6 @@ export function ProductCard({
 
       {/* Card body */}
       <div className="p-3 flex flex-col gap-2 flex-1">
-        {/* Title */}
         <h3
           className="text-base font-semibold text-gray-900 line-clamp-2 leading-snug"
           title={title}
@@ -170,7 +168,6 @@ export function ProductCard({
           {title}
         </h3>
 
-        {/* Price row */}
         <div className="flex items-baseline gap-2">
           <span className="text-lg font-extrabold text-gray-900">
             ₹{price.toLocaleString("en-IN")}
@@ -182,7 +179,7 @@ export function ProductCard({
 
         <div className="flex-1" />
 
-        {/* Mini platform compare badges */}
+        {/* Mini platform compare badges — informational brand colors kept */}
         {sortedPrices && sortedPrices.length > 0 && (
           <div
             className="flex flex-wrap items-center gap-1 mt-1"
@@ -205,14 +202,14 @@ export function ProductCard({
           </div>
         )}
 
-        {/* View Product button */}
+        {/* View Product button — pastel pink bg, black text */}
         <Button
           asChild
           size="sm"
-          className="w-full font-bold text-white rounded-full mt-1 text-sm py-5"
+          className="w-full font-bold rounded-full mt-1 text-sm py-5 border-0"
           style={{
-            background: "linear-gradient(135deg, #ec4899 0%, #f97316 100%)",
-            border: "none",
+            background: "var(--color-pink)",
+            color: "var(--color-black)",
           }}
           data-ocid={`${ocidBase}.primary_button`}
         >
@@ -230,7 +227,6 @@ export function ProductCard({
       {/* Price Comparison Section */}
       {sortedPrices && sortedPrices.length > 0 && (
         <div className="border-t border-gray-100">
-          {/* Toggle header */}
           <button
             type="button"
             onClick={() => setShowPrices((v) => !v)}
@@ -242,7 +238,13 @@ export function ProductCard({
             </span>
             <span className="flex items-center gap-1">
               {!showPrices && lowestPrice !== null && (
-                <span className="text-xs font-bold text-green-700 bg-green-50 px-1.5 py-0.5 rounded-full">
+                <span
+                  className="text-xs font-bold px-1.5 py-0.5 rounded-full"
+                  style={{
+                    background: "var(--color-pink)",
+                    color: "var(--color-black)",
+                  }}
+                >
                   Best: ₹{lowestPrice.toLocaleString("en-IN")}
                 </span>
               )}
@@ -254,7 +256,6 @@ export function ProductCard({
             </span>
           </button>
 
-          {/* Expanded price rows */}
           {showPrices && (
             <div className="pb-2 px-2 flex flex-col gap-1">
               {sortedPrices.map((pp) => {
@@ -263,44 +264,57 @@ export function ProductCard({
                 return (
                   <div
                     key={pp.platform}
-                    className={`flex items-center gap-2 rounded-lg px-2 py-1.5 ${
-                      isLowest
-                        ? "bg-green-50 ring-1 ring-green-200"
-                        : "bg-gray-50"
-                    }`}
+                    className="flex items-center gap-2 rounded-lg px-2 py-1.5"
+                    style={{
+                      background: isLowest ? "#fdf2f8" : "#f9fafb",
+                      outline: isLowest
+                        ? "1px solid var(--color-pink)"
+                        : "none",
+                    }}
                     data-ocid={`${ocidBase}.${pp.platform.toLowerCase()}_row`}
                   >
-                    {/* Platform pill */}
+                    {/* Platform pill — informational brand color */}
                     <span
                       className={`text-xs font-bold px-1.5 py-0.5 rounded-full shrink-0 ${cfg.bg} ${cfg.text}`}
                     >
                       {cfg.label}
                     </span>
 
-                    {/* Price */}
                     <span
-                      className={`text-sm font-extrabold ${
-                        isLowest ? "text-green-700" : "text-gray-800"
-                      } flex-1`}
+                      className="text-sm font-extrabold flex-1"
+                      style={{
+                        color: isLowest ? "var(--color-black)" : "#1f2937",
+                      }}
                     >
                       ₹{pp.price.toLocaleString("en-IN")}
                     </span>
 
-                    {/* Best Deal badges */}
                     {isLowest && (
                       <span className="flex items-center gap-1 shrink-0">
-                        <span className="text-[10px] font-extrabold bg-green-600 text-white px-1.5 py-0.5 rounded-full">
+                        <span
+                          className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full"
+                          style={{
+                            background: "var(--color-pink)",
+                            color: "var(--color-black)",
+                          }}
+                        >
                           Best Deal 🏷️
                         </span>
                         {savings > 0 && (
-                          <span className="text-[10px] font-bold text-orange-600">
+                          <span
+                            className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                            style={{
+                              background: "var(--color-black)",
+                              color: "white",
+                            }}
+                          >
                             Save ₹{savings}
                           </span>
                         )}
                       </span>
                     )}
 
-                    {/* Buy Now button */}
+                    {/* Buy Now — platform brand color (informational) */}
                     <a
                       href={pp.buyUrl || "#"}
                       target="_blank"
@@ -315,9 +329,11 @@ export function ProductCard({
                 );
               })}
 
-              {/* Lowest Price label */}
               {lowestPrice !== null && (
-                <p className="text-xs text-green-700 font-semibold text-center mt-0.5">
+                <p
+                  className="text-xs font-semibold text-center mt-0.5"
+                  style={{ color: "var(--color-black)" }}
+                >
                   🔥 Lowest Price ₹{lowestPrice.toLocaleString("en-IN")} — Save
                   ₹{savings}
                 </p>

@@ -346,7 +346,7 @@ export default function Navbar({ currentPage, navigate }: NavbarProps) {
                         ))}
                       </div>
                     </div>
-                    <div className="h-1 bg-gradient-to-r from-pink-300 via-pink-400 to-pink-500" />
+                    <div className="h-1 bg-[#F9A8C9]" />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -427,7 +427,7 @@ export default function Navbar({ currentPage, navigate }: NavbarProps) {
                         </div>
                       </div>
                     </div>
-                    <div className="h-1 bg-gradient-to-r from-pink-400 via-rose-400 to-fuchsia-500" />
+                    <div className="h-1 bg-[#F9A8C9]" />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -485,7 +485,7 @@ export default function Navbar({ currentPage, navigate }: NavbarProps) {
                         ))}
                       </div>
                     </div>
-                    <div className="h-1 bg-gradient-to-r from-pink-300 via-pink-400 to-pink-500" />
+                    <div className="h-1 bg-[#F9A8C9]" />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -543,7 +543,7 @@ export default function Navbar({ currentPage, navigate }: NavbarProps) {
                         ))}
                       </div>
                     </div>
-                    <div className="h-1 bg-gradient-to-r from-pink-400 via-rose-300 to-fuchsia-400" />
+                    <div className="h-1 bg-[#F9A8C9]" />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -601,7 +601,7 @@ export default function Navbar({ currentPage, navigate }: NavbarProps) {
                         ))}
                       </div>
                     </div>
-                    <div className="h-1 bg-gradient-to-r from-pink-300 via-pink-400 to-pink-500" />
+                    <div className="h-1 bg-[#F9A8C9]" />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -659,7 +659,7 @@ export default function Navbar({ currentPage, navigate }: NavbarProps) {
                         ))}
                       </div>
                     </div>
-                    <div className="h-1 bg-gradient-to-r from-pink-400 via-rose-300 to-fuchsia-400" />
+                    <div className="h-1 bg-[#F9A8C9]" />
                   </motion.div>
                 )}
               </AnimatePresence>

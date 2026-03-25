@@ -6,7 +6,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -156,7 +155,6 @@ const OUTFITS_BY_GENDER_STYLE: Record<GenderKey, Record<StyleKey, string[]>> = {
   },
 };
 
-// For sizes, map gender+kidsType to member type id
 const SIZES_BY_MEMBER: Record<string, string[]> = {
   man: ["XS", "S", "M", "L", "XL", "XXL", "XXXL"],
   woman: ["XS", "S", "M", "L", "XL", "XXL", "XXXL"],
@@ -239,18 +237,21 @@ interface MemberCard {
 }
 
 function createMember(typeId: string, index: number): MemberCard {
-  let gender: GenderKey | "" = "";
-
-  let kidsType: KidsTypeKey | "" = "";
-  if (typeId === "boy") kidsType = "boy";
-  else if (typeId === "girl") kidsType = "girl";
-  else if (typeId === "infant_boy") kidsType = "infant_boy";
-  else if (typeId === "infant_girl") kidsType = "infant_girl";
+  const kidsType: KidsTypeKey | "" =
+    typeId === "boy"
+      ? "boy"
+      : typeId === "girl"
+        ? "girl"
+        : typeId === "infant_boy"
+          ? "infant_boy"
+          : typeId === "infant_girl"
+            ? "infant_girl"
+            : "";
 
   return {
     uid: `${typeId}_${index}_${Date.now()}`,
     typeId,
-    gender,
+    gender: "",
     kidsType,
     style: "",
     outfit: "",
@@ -326,7 +327,7 @@ function ColorPicker({
               onClick={() => onChange(c.name)}
               className={`w-7 h-7 rounded-full border-2 transition-all ${
                 selected
-                  ? "border-blue-600 scale-125 shadow-md"
+                  ? "border-pink-500 scale-125 shadow-md"
                   : "border-gray-200 hover:border-gray-400"
               }`}
               style={{
@@ -340,7 +341,7 @@ function ColorPicker({
         })}
       </div>
       {value && (
-        <p className="text-sm text-blue-600 font-medium mt-1">
+        <p className="text-sm font-medium text-gray-700 mt-1">
           Selected: {value}
         </p>
       )}
@@ -383,12 +384,7 @@ function MemberCardUI({
   };
 
   const handleKidsTypeChange = (kt: KidsTypeKey) => {
-    onChange({
-      kidsType: kt,
-      typeId: kt,
-      outfit: "",
-      size: "",
-    });
+    onChange({ kidsType: kt, typeId: kt, outfit: "", size: "" });
   };
 
   const handleStyleChange = (s: StyleKey) => {
@@ -575,7 +571,7 @@ function MemberCardUI({
       <div className="mb-3">
         <p className="text-sm font-semibold text-gray-600 mb-1">Outfit Type</p>
         {!card.gender || !card.style ? (
-          <p className="text-xs text-amber-500 font-medium bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+          <p className="text-xs text-amber-600 font-medium bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
             ⬆ Select Gender and Style first
           </p>
         ) : (
@@ -619,8 +615,8 @@ function MemberCardUI({
                 data-ocid={`member.toggle.${index + 1}`}
                 className={`px-3 py-1.5 rounded-md border text-sm font-semibold transition-all ${
                   card.size === sz
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-gray-300 text-black hover:border-blue-400"
+                    ? "border-pink-500 bg-pink-500 text-white"
+                    : "border-gray-300 text-black hover:border-pink-300"
                 }`}
               >
                 {sz}
@@ -667,11 +663,10 @@ function FilterPanelContent({
   selectedOccasions,
   setSelectedOccasions,
   onClearAll,
-  variant = "dark",
+  variant = "light",
 }: FilterPanelProps) {
   const isDark = variant === "dark";
 
-  // Colour tokens based on variant
   const labelCls = isDark ? "text-white/90" : "text-gray-800";
   const budgetValueCls = isDark ? "text-yellow-300" : "text-pink-600 font-bold";
   const sliderMinMaxCls = isDark ? "text-white/50" : "text-gray-400";
@@ -681,7 +676,9 @@ function FilterPanelContent({
   const unselectedBtnCls = isDark
     ? "border-white/30 text-white/80 hover:bg-white/20"
     : "border-gray-300 text-gray-700 hover:bg-gray-100";
-  const selectedBtnCls = "bg-yellow-400 text-black border-yellow-400";
+  const selectedBtnCls = isDark
+    ? "bg-yellow-400 text-black border-yellow-400"
+    : "bg-pink-500 text-white border-pink-500";
 
   const toggleOccasion = (occ: string) => {
     setSelectedOccasions((prev) => {
@@ -718,7 +715,7 @@ function FilterPanelContent({
       <div>
         <div className="flex items-center justify-between mb-2">
           <p className={`text-base font-semibold ${labelCls}`}>Budget</p>
-          <span className={`text-sm font-bold ${budgetValueCls}`}>
+          <span className={`text-sm ${budgetValueCls}`}>
             ₹{budget[0].toLocaleString()} – ₹{budget[1].toLocaleString()}
           </span>
         </div>
@@ -728,7 +725,7 @@ function FilterPanelContent({
           step={100}
           value={budget}
           onValueChange={(v) => setBudget(v as [number, number])}
-          className="[&_[role=slider]]:bg-yellow-400 [&_[role=slider]]:border-yellow-500"
+          className="[&_[role=slider]]:bg-pink-500 [&_[role=slider]]:border-pink-600"
           data-ocid="filters.budget.input"
         />
         <div className={`flex justify-between text-xs mt-1 ${sliderMinMaxCls}`}>
@@ -767,7 +764,6 @@ function FilterPanelContent({
         </div>
       </div>
 
-      {/* Clear All — bottom of panel for mobile context */}
       {onClearAll && (
         <div className="pt-1">
           <button
@@ -816,7 +812,6 @@ export default function FindPage({
     }
   };
 
-  // Initialize mode if provided via prop
   if (mode === null && initialMode) {
     switchMode(initialMode);
   }
@@ -869,7 +864,7 @@ export default function FindPage({
   };
 
   return (
-    <div className="min-h-screen bg-background py-10 px-4 pb-24">
+    <div className="min-h-screen bg-white py-10 px-4 pb-24">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <motion.div
@@ -877,45 +872,73 @@ export default function FindPage({
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-1">
+          <h1 className="text-3xl md:text-4xl font-bold text-black mb-1">
             <Sparkles className="inline-block w-7 h-7 mr-2 text-yellow-400" />
             Find Twinning Outfits
           </h1>
-          <p className="text-muted-foreground text-base md:text-lg">
+          <p className="text-gray-500 text-base md:text-lg">
             Pick members, select outfits, compare prices across 5 platforms
           </p>
         </motion.div>
 
-        {/* Mode Toggle */}
-        <div
-          className="flex rounded-2xl overflow-hidden border-2 border-white/20 mb-8 shadow-xl"
-          data-ocid="mode.toggle"
-        >
+        {/* ── MODE SELECTION CARDS ── */}
+        <div className="grid grid-cols-2 gap-4 mb-8" data-ocid="mode.toggle">
+          {/* Couple Twinning Card */}
           <button
             type="button"
             onClick={() => switchMode("couple")}
             data-ocid="mode.couple.tab"
-            className={`flex-1 flex items-center justify-center gap-2 py-4 text-base font-bold transition-all ${
+            className={`relative flex flex-col items-center justify-center gap-2 rounded-2xl border-2 p-6 min-h-[140px] transition-all duration-200 cursor-pointer shadow-sm hover:shadow-lg active:scale-95 ${
               mode === "couple"
-                ? "bg-white text-blue-700 shadow-inner"
-                : "bg-white/10 text-white hover:bg-white/20"
+                ? "bg-pink-500 border-pink-500 text-white shadow-pink-200 shadow-lg"
+                : "bg-white border-pink-200 text-gray-700 hover:border-pink-400 hover:bg-pink-50"
             }`}
           >
-            <Heart className="w-5 h-5" />
-            Couple Twinning
+            {mode === "couple" && (
+              <span className="absolute top-2 right-2 bg-white text-pink-500 text-xs font-bold px-2 py-0.5 rounded-full">
+                ✓ Selected
+              </span>
+            )}
+            <span className="text-4xl">❤️</span>
+            <span className="text-lg font-extrabold leading-tight text-center">
+              Couple Twinning
+            </span>
+            <span
+              className={`text-xs font-medium text-center leading-snug ${
+                mode === "couple" ? "text-pink-100" : "text-gray-400"
+              }`}
+            >
+              2 members: Men + Women
+            </span>
           </button>
+
+          {/* Family Twinning Card */}
           <button
             type="button"
             onClick={() => switchMode("family")}
             data-ocid="mode.family.tab"
-            className={`flex-1 flex items-center justify-center gap-2 py-4 text-base font-bold transition-all ${
+            className={`relative flex flex-col items-center justify-center gap-2 rounded-2xl border-2 p-6 min-h-[140px] transition-all duration-200 cursor-pointer shadow-sm hover:shadow-lg active:scale-95 ${
               mode === "family"
-                ? "bg-white text-blue-700 shadow-inner"
-                : "bg-white/10 text-white hover:bg-white/20"
+                ? "bg-pink-500 border-pink-500 text-white shadow-pink-200 shadow-lg"
+                : "bg-white border-pink-200 text-gray-700 hover:border-pink-400 hover:bg-pink-50"
             }`}
           >
-            <Users className="w-5 h-5" />
-            Family Twinning
+            {mode === "family" && (
+              <span className="absolute top-2 right-2 bg-white text-pink-500 text-xs font-bold px-2 py-0.5 rounded-full">
+                ✓ Selected
+              </span>
+            )}
+            <span className="text-4xl">👨‍👩‍👧</span>
+            <span className="text-lg font-extrabold leading-tight text-center">
+              Family Twinning
+            </span>
+            <span
+              className={`text-xs font-medium text-center leading-snug ${
+                mode === "family" ? "text-pink-100" : "text-gray-400"
+              }`}
+            >
+              Up to 8 members
+            </span>
           </button>
         </div>
 
@@ -924,14 +947,16 @@ export default function FindPage({
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="bg-white/10 rounded-2xl p-10 text-center text-white"
+            className="bg-pink-50 border border-pink-200 rounded-2xl p-10 text-center"
           >
-            <p className="text-xl font-semibold mb-2">
-              Choose a twinning mode above
+            <p className="text-xl font-semibold text-gray-700 mb-2">
+              👆 Choose a twinning mode above
             </p>
-            <p className="text-white/70 text-base">
-              Start with Couple Twinning or Family Twinning to add members and
-              find matching outfits.
+            <p className="text-gray-500 text-base">
+              Start with{" "}
+              <strong className="text-pink-600">Couple Twinning</strong> or{" "}
+              <strong className="text-pink-600">Family Twinning</strong> to add
+              members and find matching outfits.
             </p>
           </motion.div>
         )}
@@ -964,13 +989,13 @@ export default function FindPage({
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="outline"
-                      className="w-full border-2 border-dashed border-white/40 bg-transparent text-white hover:bg-white/10 hover:text-white font-semibold py-6 text-base"
+                      className="w-full border-2 border-dashed border-gray-300 bg-white text-gray-700 hover:bg-pink-50 hover:text-pink-600 hover:border-pink-300 font-semibold py-6 text-base"
                       data-ocid="member.open_modal_button"
                     >
                       <Plus className="w-5 h-5 mr-2" />
                       Add Person
                       {members.length < 8 && (
-                        <span className="ml-2 text-white/60 text-sm">
+                        <span className="ml-2 text-gray-400 text-sm">
                           ({8 - members.length} remaining)
                         </span>
                       )}
@@ -997,21 +1022,21 @@ export default function FindPage({
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="hidden md:block bg-white/10 rounded-2xl p-5 mb-4 border border-white/20"
+              className="hidden md:block bg-gray-50 rounded-2xl p-5 mb-4 border border-gray-200"
               data-ocid="filters.panel"
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-white text-lg">🎯 Filters</h3>
+                <h3 className="font-bold text-gray-800 text-lg">🎯 Filters</h3>
                 <button
                   type="button"
                   onClick={clearAllFilters}
-                  className="text-xs font-bold text-yellow-300 hover:text-yellow-100 underline underline-offset-2 transition-colors"
+                  className="text-xs font-bold text-pink-600 hover:text-pink-800 underline underline-offset-2 transition-colors"
                   data-ocid="filters.clear_all_button"
                 >
                   Clear All
                 </button>
               </div>
-              <FilterPanelContent {...filterPanelProps} variant="dark" />
+              <FilterPanelContent {...filterPanelProps} variant="light" />
             </motion.div>
 
             {/* Summary & Find */}
@@ -1019,10 +1044,10 @@ export default function FindPage({
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white/10 rounded-2xl p-5 mb-6 border border-white/20"
+                className="bg-gray-50 rounded-2xl p-5 mb-6 border border-gray-200"
                 data-ocid="summary.card"
               >
-                <h3 className="font-bold text-white text-lg mb-3">
+                <h3 className="font-bold text-gray-800 text-lg mb-3">
                   📋 Your Selection Summary
                 </h3>
                 <div className="space-y-1.5">
@@ -1043,7 +1068,7 @@ export default function FindPage({
                     return (
                       <div
                         key={m.uid}
-                        className="flex items-center gap-2 text-base text-white/90 flex-wrap"
+                        className="flex items-center gap-2 text-base text-gray-800 flex-wrap"
                       >
                         <span>{mt.emoji}</span>
                         <span className="font-semibold">
@@ -1058,20 +1083,20 @@ export default function FindPage({
                         {styleLabel && (
                           <Badge
                             variant="outline"
-                            className="text-pink-300 border-pink-400 text-xs py-0"
+                            className="text-pink-600 border-pink-400 text-xs py-0"
                           >
                             {styleLabel}
                           </Badge>
                         )}
                         <span>
                           {m.outfit || (
-                            <em className="opacity-50">No outfit</em>
+                            <em className="text-gray-400">No outfit</em>
                           )}
                         </span>
                         {m.color && (
                           <span className="flex items-center gap-1">
                             <span
-                              className="w-3.5 h-3.5 rounded-full border border-white/30 inline-block"
+                              className="w-3.5 h-3.5 rounded-full border border-gray-300 inline-block"
                               style={{
                                 background:
                                   m.color === "Multi"
@@ -1086,7 +1111,7 @@ export default function FindPage({
                         {m.size && (
                           <Badge
                             variant="outline"
-                            className="text-white border-white/40 text-sm py-0"
+                            className="text-gray-700 border-gray-400 text-sm py-0"
                           >
                             {m.size}
                           </Badge>
@@ -1096,7 +1121,7 @@ export default function FindPage({
                   })}
                 </div>
                 {!canFind && (
-                  <p className="text-yellow-300 text-sm mt-3 font-medium">
+                  <p className="text-pink-600 text-sm mt-3 font-medium bg-pink-50 border border-pink-200 rounded-lg px-3 py-2">
                     ⚠ Please select Gender, Style, outfit, color, and size for
                     all members.
                   </p>
@@ -1108,7 +1133,7 @@ export default function FindPage({
               <Button
                 variant="outline"
                 onClick={() => navigate("home")}
-                className="w-full sm:w-auto bg-white/10 text-white border-white/30 hover:bg-white/20 hover:text-white py-5 text-base"
+                className="w-full sm:w-auto bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-gray-900 py-5 text-base"
                 data-ocid="find.back_button"
               >
                 <ChevronLeft className="w-4 h-4 mr-1" />
@@ -1117,7 +1142,7 @@ export default function FindPage({
               <Button
                 onClick={handleFindResult}
                 disabled={!canFind}
-                className="flex-1 font-extrabold text-xl bg-yellow-400 text-black hover:bg-yellow-300 border-0 shadow-lg rounded-full disabled:opacity-40 disabled:shadow-none py-6 tracking-wider w-full sm:w-auto"
+                className="flex-1 font-extrabold text-xl bg-black text-white hover:bg-gray-900 border-0 shadow-lg rounded-full disabled:opacity-40 disabled:shadow-none py-6 tracking-wider w-full sm:w-auto"
                 data-ocid="find.submit_button"
               >
                 ✨ FIND RESULT
@@ -1133,13 +1158,13 @@ export default function FindPage({
           <button
             type="button"
             onClick={() => setFilterSheetOpen(true)}
-            className="flex items-center gap-2 bg-white text-blue-700 font-bold px-6 py-3.5 rounded-full shadow-2xl text-base border-2 border-blue-200"
+            className="flex items-center gap-2 bg-white text-black font-bold px-6 py-3.5 rounded-full shadow-2xl text-base border-2 border-gray-200"
             data-ocid="filters.open_modal_button"
           >
             <SlidersHorizontal className="w-5 h-5" />
             Filters & Budget
             {selectedBrands.size > 0 && (
-              <span className="bg-primary text-primary-foreground rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">
+              <span className="bg-pink-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center font-bold">
                 {selectedBrands.size}
               </span>
             )}
@@ -1151,13 +1176,12 @@ export default function FindPage({
       <Sheet open={filterSheetOpen} onOpenChange={setFilterSheetOpen}>
         <SheetContent
           side="bottom"
-          className="rounded-t-3xl max-h-[85vh] flex flex-col bg-background border-border p-0"
+          className="rounded-t-3xl max-h-[85vh] flex flex-col bg-white border-gray-200 p-0"
           data-ocid="filters.sheet"
         >
-          {/* Sheet header — fixed */}
           <SheetHeader className="px-5 pt-5 pb-3 flex-shrink-0">
             <div className="flex items-center justify-between">
-              <SheetTitle className="text-foreground text-xl font-bold text-left">
+              <SheetTitle className="text-gray-800 text-xl font-bold text-left">
                 🎯 Filters & Budget
               </SheetTitle>
               <button
@@ -1171,14 +1195,12 @@ export default function FindPage({
             </div>
           </SheetHeader>
 
-          {/* Scrollable filter content */}
           <div className="flex-1 overflow-y-auto px-5 pb-2">
             <FilterPanelContent {...filterPanelProps} variant="light" />
             <div className="h-4" />
           </div>
 
-          {/* Sticky Apply button pinned at bottom */}
-          <div className="sticky bottom-0 bg-background px-5 pt-3 pb-5 flex-shrink-0 border-t border-border">
+          <div className="sticky bottom-0 bg-white px-5 pt-3 pb-5 flex-shrink-0 border-t border-gray-200">
             <Button
               className="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold text-lg py-6 rounded-full shadow-lg"
               onClick={() => setFilterSheetOpen(false)}

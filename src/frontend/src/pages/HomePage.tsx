@@ -504,7 +504,7 @@ export default function HomePage({ navigate }: HomePageProps) {
 
       {/* How It Works Section */}
       <section
-        className="py-16 px-4 bg-gradient-to-b from-pink-50 to-white"
+        className="py-16 px-4 bg-pink-50"
         data-ocid="how_it_works.section"
       >
         <div className="max-w-5xl mx-auto">
@@ -514,9 +514,7 @@ export default function HomePage({ navigate }: HomePageProps) {
             </p>
             <h2 className="text-3xl md:text-4xl font-bold text-black">
               Find Your Perfect Twinning Outfit in{" "}
-              <span className="bg-gradient-to-r from-pink-500 to-orange-400 bg-clip-text text-transparent">
-                3 Simple Steps
-              </span>
+              <span className="text-[#F9A8C9]">3 Simple Steps</span>
             </h2>
           </div>
           <div className="relative flex flex-col md:flex-row gap-8 items-stretch">
@@ -555,7 +553,13 @@ export default function HomePage({ navigate }: HomePageProps) {
                 className="relative flex-1 bg-white rounded-2xl shadow-md p-8 flex flex-col items-center text-center z-10 cursor-default border border-pink-50"
               >
                 {/* Step number badge */}
-                <span className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-gradient-to-br from-pink-500 to-orange-400 text-white text-sm font-bold flex items-center justify-center shadow-md">
+                <span
+                  className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full text-sm font-bold flex items-center justify-center shadow-md"
+                  style={{
+                    background: "var(--color-pink)",
+                    color: "var(--color-black)",
+                  }}
+                >
                   {item.step}
                 </span>
                 {/* Icon circle */}
@@ -577,7 +581,7 @@ export default function HomePage({ navigate }: HomePageProps) {
       {/* Twinning Mode Section */}
       <section className="bg-white py-14 px-4" data-ocid="twinning.section">
         <div className="max-w-4xl mx-auto text-center mb-10">
-          <p className="text-xs tracking-[0.3em] uppercase text-blue-600 font-semibold mb-2">
+          <p className="text-xs tracking-[0.3em] uppercase font-semibold text-black mb-2">
             ✦ Start Your Twinning Journey ✦
           </p>
           <h2 className="text-3xl md:text-4xl font-bold text-black mb-3">
@@ -596,7 +600,7 @@ export default function HomePage({ navigate }: HomePageProps) {
             whileTap={{ scale: 0.98 }}
             onClick={() => navigate("find", "couple")}
             data-ocid="twinning.couple.button"
-            className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-pink-400 via-rose-500 to-pink-600 text-white shadow-2xl shadow-pink-200 p-8 text-left flex flex-col gap-4 cursor-pointer border-0"
+            className="group relative overflow-hidden rounded-3xl bg-[#F9A8C9] text-white shadow-2xl shadow-pink-200 p-8 text-left flex flex-col gap-4 cursor-pointer border-0"
           >
             <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center text-4xl backdrop-blur-sm">
               💑
@@ -831,7 +835,7 @@ export default function HomePage({ navigate }: HomePageProps) {
       <TwinningLooksSuggestions />
 
       {/* Trending Twinning Outfits */}
-      <section className="py-16 bg-orange-50 px-4" data-ocid="trending.section">
+      <section className="py-16 bg-white px-4" data-ocid="trending.section">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-10">
             <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-black mb-2">
@@ -934,7 +938,7 @@ export default function HomePage({ navigate }: HomePageProps) {
       </section>
 
       {/* Wedding Special */}
-      <section className="py-16 bg-rose-50 px-4" data-ocid="wedding.section">
+      <section className="py-16 bg-pink-50 px-4" data-ocid="wedding.section">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-10">
             <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-black mb-2">
@@ -1152,8 +1156,8 @@ export default function HomePage({ navigate }: HomePageProps) {
             title="Boys"
             subtitle="Trendy styles for little gents"
             bgClass="bg-pink-50"
-            accentClass="text-blue-800"
-            borderClass="border-blue-200"
+            accentClass="text-black"
+            borderClass="border-[#F9A8C9]"
             hoverBgClass="hover:bg-pink-100"
             icon="👦"
             categories={BOYS_CATEGORIES}
@@ -1187,8 +1191,8 @@ export default function HomePage({ navigate }: HomePageProps) {
           <KidsCard
             title="Girl Baby"
             subtitle="Adorable picks for baby girls"
-            bgClass="bg-rose-50"
-            accentClass="text-rose-800"
+            bgClass="bg-pink-50"
+            accentClass="text-black"
             borderClass="border-rose-200"
             hoverBgClass="hover:bg-rose-100"
             icon="👶"

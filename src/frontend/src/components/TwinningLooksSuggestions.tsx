@@ -34,12 +34,6 @@ interface OutfitCombo {
   outfits: Record<MemberType, OutfitItem>;
 }
 
-const OCCASION_COLORS: Record<string, string> = {
-  Wedding: "#ec4899",
-  Festival: "#f97316",
-  Casual: "#6366f1",
-};
-
 const ALL_COMBOS: OutfitCombo[] = [
   {
     id: 1,
@@ -270,20 +264,25 @@ export default function TwinningLooksSuggestions({
   return (
     <section className="py-12 px-4" data-ocid="ai_suggestions.section">
       <div className="max-w-7xl mx-auto">
-        {/* Section header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 mb-3">
-            <Sparkles className="w-5 h-5" style={{ color: "#ec4899" }} />
+            <Sparkles
+              className="w-5 h-5"
+              style={{ color: "var(--color-pink)" }}
+            />
             <span
               className="text-sm font-semibold px-3 py-1 rounded-full"
               style={{
-                background: "linear-gradient(90deg, #ec4899, #f97316)",
-                color: "white",
+                background: "var(--color-pink)",
+                color: "var(--color-black)",
               }}
             >
               AI Powered
             </span>
-            <Sparkles className="w-5 h-5" style={{ color: "#f97316" }} />
+            <Sparkles
+              className="w-5 h-5"
+              style={{ color: "var(--color-pink)" }}
+            />
           </div>
           <h2 className="font-display text-3xl md:text-4xl font-bold text-black mb-2">
             {title}
@@ -291,7 +290,6 @@ export default function TwinningLooksSuggestions({
           <p className="text-gray-500 text-base md:text-lg">{subtitle}</p>
         </div>
 
-        {/* Combo cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {combos.map((combo, idx) => (
             <div
@@ -299,21 +297,21 @@ export default function TwinningLooksSuggestions({
               className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow duration-200"
               data-ocid={`ai_suggestions.item.${idx + 1}`}
             >
-              {/* Card header */}
               <div className="p-4 pb-3">
                 <div className="flex items-center justify-between mb-2">
                   <span
-                    className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full text-white"
+                    className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full"
                     style={{
-                      background: "linear-gradient(90deg, #ec4899, #f97316)",
+                      background: "var(--color-pink)",
+                      color: "var(--color-black)",
                     }}
                   >
                     <Sparkles className="w-3 h-3" />
                     AI Recommended
                   </span>
                   <Badge
-                    className="text-white text-xs"
-                    style={{ background: OCCASION_COLORS[combo.occasion] }}
+                    className="text-xs border-0"
+                    style={{ background: "var(--color-black)", color: "white" }}
                   >
                     <Tag className="w-3 h-3 mr-1" />
                     {combo.occasion}
@@ -324,7 +322,6 @@ export default function TwinningLooksSuggestions({
                 </h3>
               </div>
 
-              {/* Outfit mini-cards horizontal scroll */}
               <div className="px-4">
                 <div
                   className="flex gap-3 overflow-x-auto pb-2"
@@ -341,7 +338,6 @@ export default function TwinningLooksSuggestions({
                 </div>
               </div>
 
-              {/* Card footer */}
               <div className="p-4 pt-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div>
                   <p className="text-xs text-gray-400">Total price range</p>
@@ -352,9 +348,10 @@ export default function TwinningLooksSuggestions({
                 </div>
                 <Button
                   size="sm"
-                  className="w-full sm:w-auto text-white font-semibold border-0 flex items-center justify-center gap-1.5 py-5"
+                  className="w-full sm:w-auto font-semibold border-0 flex items-center justify-center gap-1.5 py-5 rounded-full"
                   style={{
-                    background: "linear-gradient(90deg, #ec4899, #f97316)",
+                    background: "var(--color-pink)",
+                    color: "var(--color-black)",
                   }}
                   data-ocid={`ai_suggestions.item.${idx + 1}.button`}
                 >

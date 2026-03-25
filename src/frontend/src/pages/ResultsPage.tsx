@@ -827,15 +827,15 @@ function SortFilterBar({
           }
           className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-bold border transition-colors ${
             panelOpen || sheetOpen || activeFilterCount > 0
-              ? "bg-primary text-primary-foreground border-blue-600"
-              : "bg-gray-50 text-gray-700 border-gray-200 hover:border-blue-400"
+              ? "bg-primary text-primary-foreground border-[#F9A8C9]"
+              : "bg-gray-50 text-gray-700 border-gray-200 hover:border-[#F9A8C9]"
           }`}
           data-ocid="sort_filter.toggle"
         >
           <Filter className="w-3.5 h-3.5" />
           Filters
           {activeFilterCount > 0 && (
-            <span className="ml-0.5 bg-white text-blue-700 rounded-full w-4 h-4 text-[10px] flex items-center justify-center font-extrabold">
+            <span className="ml-0.5 bg-white text-black rounded-full w-4 h-4 text-[10px] flex items-center justify-center font-extrabold">
               {activeFilterCount}
             </span>
           )}
@@ -843,7 +843,7 @@ function SortFilterBar({
 
         {/* Results count badge */}
         <span className="ml-auto text-xs font-semibold text-gray-500">
-          <span className="text-blue-700 font-extrabold">{filteredCount}</span>
+          <span className="font-extrabold text-black">{filteredCount}</span>
           <span> / {totalCount} styles</span>
         </span>
 
@@ -897,7 +897,13 @@ function SortFilterBar({
             );
           })}
           {filters.maxPrice < 5000 && (
-            <span className="flex items-center gap-1 bg-green-100 text-green-800 text-[11px] font-semibold px-2 py-0.5 rounded-full">
+            <span
+              className="flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full"
+              style={{
+                background: "var(--color-pink)",
+                color: "var(--color-black)",
+              }}
+            >
               Max ₹{filters.maxPrice.toLocaleString("en-IN")}
               <button
                 type="button"
@@ -935,8 +941,8 @@ function SortFilterBar({
                       onClick={() => toggleCategory(cat)}
                       className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border transition-colors ${
                         filters.selectedCategories.has(cat)
-                          ? "bg-primary text-primary-foreground border-blue-600"
-                          : "bg-white text-gray-700 border-gray-300 hover:border-blue-400"
+                          ? "bg-primary text-primary-foreground border-[#F9A8C9]"
+                          : "bg-white text-gray-700 border-gray-300 hover:border-[#F9A8C9]"
                       }`}
                       data-ocid="sort_filter.category_toggle"
                     >
@@ -981,7 +987,7 @@ function SortFilterBar({
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-xs font-bold text-gray-700">Max Price</p>
-                  <span className="text-xs font-extrabold text-blue-700">
+                  <span className="text-xs font-extrabold text-black">
                     ₹{filters.maxPrice.toLocaleString("en-IN")}
                   </span>
                 </div>
@@ -1030,8 +1036,8 @@ function SortFilterBar({
                       onClick={() => onChange({ ...filters, sortBy: opt })}
                       className={`text-sm font-semibold px-3 py-1.5 rounded-full border transition-colors ${
                         filters.sortBy === opt
-                          ? "bg-primary text-primary-foreground border-blue-600"
-                          : "bg-white text-gray-700 border-gray-300 hover:border-blue-400"
+                          ? "bg-primary text-primary-foreground border-[#F9A8C9]"
+                          : "bg-white text-gray-700 border-gray-300 hover:border-[#F9A8C9]"
                       }`}
                     >
                       {opt}
@@ -1052,8 +1058,8 @@ function SortFilterBar({
                       onClick={() => toggleCategory(cat)}
                       className={`text-sm font-semibold px-3 py-1.5 rounded-full border transition-colors ${
                         filters.selectedCategories.has(cat)
-                          ? "bg-primary text-primary-foreground border-blue-600"
-                          : "bg-white text-gray-700 border-gray-300 hover:border-blue-400"
+                          ? "bg-primary text-primary-foreground border-[#F9A8C9]"
+                          : "bg-white text-gray-700 border-gray-300 hover:border-[#F9A8C9]"
                       }`}
                       data-ocid="sort_filter.category_toggle"
                     >
@@ -1096,7 +1102,7 @@ function SortFilterBar({
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-sm font-bold text-gray-700">Max Price</p>
-                  <span className="text-sm font-extrabold text-blue-700">
+                  <span className="text-sm font-extrabold text-black">
                     ₹{filters.maxPrice.toLocaleString("en-IN")}
                   </span>
                 </div>
@@ -1273,7 +1279,13 @@ function QuickViewModal({
               {/* Badges on image */}
               <div className="absolute top-3 right-3 z-10">
                 {variant.variantIndex % 4 === 0 && (
-                  <span className="flex items-center gap-1 bg-purple-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow">
+                  <span
+                    className="flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full shadow"
+                    style={{
+                      background: "var(--color-pink)",
+                      color: "var(--color-black)",
+                    }}
+                  >
                     <Sparkles className="w-3 h-3" /> Recommended for You
                   </span>
                 )}
@@ -1317,7 +1329,7 @@ function QuickViewModal({
                     key={row.id}
                     className={`flex items-center gap-2 rounded-lg px-3 py-2 ${
                       row.price === lowestPrice
-                        ? "bg-green-50 border border-green-200"
+                        ? "bg-pink-50 border border-[#F9A8C9]"
                         : "bg-gray-50 border border-gray-100"
                     }`}
                     data-ocid="quick_view.price_row"
@@ -1330,14 +1342,18 @@ function QuickViewModal({
                     </span>
                     <span
                       className={`font-extrabold text-sm flex-1 ${
-                        row.price === lowestPrice
-                          ? "text-green-700"
-                          : "text-black"
+                        row.price === lowestPrice ? "text-black" : "text-black"
                       }`}
                     >
                       ₹{row.price.toLocaleString("en-IN")}
                       {row.price === lowestPrice && (
-                        <span className="ml-1 text-[10px] bg-green-100 text-green-700 rounded px-1">
+                        <span
+                          className="ml-1 text-[10px] rounded px-1"
+                          style={{
+                            background: "var(--color-pink)",
+                            color: "var(--color-black)",
+                          }}
+                        >
                           BEST
                         </span>
                       )}
@@ -1377,7 +1393,7 @@ function QuickViewModal({
                   href={cheapestPlatformObj.buyUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 w-full bg-blue-600 hover:bg-gray-800 text-white font-bold py-3 rounded-xl transition-colors text-sm"
+                  className="flex items-center justify-center gap-2 w-full bg-[#111111] hover:bg-[#333333] text-white font-bold py-3 rounded-xl transition-colors text-sm"
                   data-ocid="quick_view.buy_now_button"
                 >
                   Buy Now on {cheapestPlatformObj.label}
@@ -1426,7 +1442,7 @@ function OutfitVariantCard({
       className={`rounded-xl overflow-hidden border-2 transition-all flex flex-col text-left flex-shrink-0 ${
         isSelected
           ? "border-pink-400 shadow-lg shadow-pink-200 ring-2 ring-pink-300"
-          : "border-gray-200 hover:border-blue-300 hover:shadow-md"
+          : "border-gray-200 hover:border-[#F9A8C9] hover:shadow-md"
       }`}
       style={{ width: 160 }}
       data-ocid="outfit_variant.card"
@@ -1472,14 +1488,14 @@ function OutfitVariantCard({
           <span
             className={`absolute top-2 left-2 z-10 text-[9px] font-bold px-2 py-0.5 rounded-full shadow-md text-white ${
               cheapPlat.id === "amazon"
-                ? "bg-orange-500"
+                ? "bg-white0"
                 : cheapPlat.id === "myntra"
                   ? "bg-pink-500"
                   : cheapPlat.id === "flipkart"
                     ? "bg-primary"
                     : cheapPlat.id === "ajio"
                       ? "bg-red-600"
-                      : "bg-purple-600"
+                      : "bg-[#111111]"
             }`}
           >
             {cheapPlat.id.charAt(0).toUpperCase() + cheapPlat.id.slice(1)}
@@ -1519,7 +1535,7 @@ function OutfitVariantCard({
       <div className="p-3 flex flex-col gap-1.5 flex-1 bg-white">
         {/* AI Recommendation badge */}
         {variant.variantIndex % 4 === 0 && (
-          <span className="inline-flex items-center gap-1 bg-purple-100 text-purple-700 text-[9px] font-bold px-2 py-0.5 rounded-full">
+          <span className="inline-flex items-center gap-1 bg-[#F9A8C9] text-black text-[9px] font-bold px-2 py-0.5 rounded-full">
             <Sparkles className="w-2.5 h-2.5" /> Recommended for You
           </span>
         )}
@@ -1541,10 +1557,16 @@ function OutfitVariantCard({
               const savings = maxP - variant.lowestPrice;
               return savings > 0 ? (
                 <div className="flex items-center gap-1 mt-0.5">
-                  <span className="text-[9px] bg-green-100 text-green-700 font-bold px-1.5 py-0.5 rounded-full">
+                  <span
+                    className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
+                    style={{
+                      background: "var(--color-pink)",
+                      color: "var(--color-black)",
+                    }}
+                  >
                     Lowest Price 🔥
                   </span>
-                  <span className="text-[9px] text-green-600 font-bold">
+                  <span className="text-[9px] font-bold text-black">
                     Save ₹{savings.toLocaleString("en-IN")}
                   </span>
                 </div>
@@ -1577,7 +1599,8 @@ function OutfitVariantCard({
             onClick={(e) => e.stopPropagation()}
             className="mt-1 flex items-center justify-center gap-1 text-white text-[10px] font-bold px-2 py-1.5 rounded-lg transition-opacity hover:opacity-90"
             style={{
-              background: "linear-gradient(135deg, #ec4899 0%, #f97316 100%)",
+              background: "var(--color-pink)",
+              color: "var(--color-black)",
             }}
             data-ocid="outfit_variant.buy_button"
           >
@@ -1784,7 +1807,7 @@ function MemberSection({ member }: { member: MemberConfig }) {
             </div>
           </div>
           <div className="flex items-center gap-2 mb-2">
-            <TrendingDown className="w-4 h-4 text-green-600" />
+            <TrendingDown className="w-4 h-4 text-[#111111]" />
             <span className="font-bold text-sm text-black">
               Price Comparison Across Platforms
             </span>
@@ -1805,7 +1828,7 @@ function MemberSection({ member }: { member: MemberConfig }) {
                   <TableRow
                     key={row.id}
                     className={
-                      row.price === lowestCompPrice ? "bg-green-50" : ""
+                      row.price === lowestCompPrice ? "bg-pink-50" : ""
                     }
                     data-ocid="price_comparison.row"
                   >
@@ -1823,13 +1846,19 @@ function MemberSection({ member }: { member: MemberConfig }) {
                     <TableCell
                       className={`font-extrabold ${
                         row.price === lowestCompPrice
-                          ? "text-green-600"
+                          ? "text-[#111111]"
                           : "text-black"
                       }`}
                     >
                       ₹{row.price.toLocaleString("en-IN")}
                       {row.price === lowestCompPrice && (
-                        <span className="ml-1 text-[10px] bg-green-100 text-green-700 rounded px-1">
+                        <span
+                          className="ml-1 text-[10px] rounded px-1"
+                          style={{
+                            background: "var(--color-pink)",
+                            color: "var(--color-black)",
+                          }}
+                        >
                           LOWEST
                         </span>
                       )}

@@ -119,3 +119,13 @@
     border-color: oklch(55% 0.22 260);
   }
 }
+
+/* ═══════════════════════════════════════════════════════
+   Shireka Fashion — Two-color design tokens
+   Primary: Black (#111111) + Pastel Pink (#F9A8C9)
+   ═══════════════════════════════════════════════════════ */
+:root {
+  --color-pink: #f9a8c9;
+  --color-pink-hover: #f48ab8;
+  --color-black: #111111;
+}
