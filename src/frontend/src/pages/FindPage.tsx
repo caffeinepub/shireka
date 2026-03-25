@@ -603,7 +603,7 @@ function MemberCardUI({
       />
 
       {/* ── SIZE ── */}
-      {card.gender && (
+      {card.gender && card.outfit !== "Sarees" && (
         <div className="mb-4">
           <p className="text-sm font-semibold text-gray-600 mb-1">Size</p>
           <div className="flex flex-wrap gap-2">
@@ -833,7 +833,14 @@ export default function FindPage({
 
   const canFind =
     members.length > 0 &&
-    members.every((m) => m.gender && m.style && m.outfit && m.color && m.size);
+    members.every(
+      (m) =>
+        m.gender &&
+        m.style &&
+        m.outfit &&
+        m.color &&
+        (m.outfit === "Sarees" || m.size),
+    );
 
   const handleFindResult = () => {
     const configs: MemberConfig[] = members.map((m) => {
@@ -1122,8 +1129,8 @@ export default function FindPage({
                 </div>
                 {!canFind && (
                   <p className="text-pink-600 text-sm mt-3 font-medium bg-pink-50 border border-pink-200 rounded-lg px-3 py-2">
-                    ⚠ Please select Gender, Style, outfit, color, and size for
-                    all members.
+                    ⚠ Please select Gender, Style, outfit, color, and size (if
+                    applicable) for all members.
                   </p>
                 )}
               </motion.div>

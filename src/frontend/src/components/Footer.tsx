@@ -22,7 +22,7 @@ export default function Footer({ navigate }: FooterProps) {
               className="font-display text-4xl font-bold tracking-wide"
             >
               <img
-                src="/assets/generated/shireka-fashion-logo-transparent.dim_400x120.png"
+                src="/assets/uploads/shireka_fashion-019d25b9-1fe6-7557-acd9-0d6c0a3cebcd-1.png"
                 alt="Shireka Fashion"
                 className="h-12 object-contain"
               />
